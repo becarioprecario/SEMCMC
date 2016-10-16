@@ -1,0 +1,13 @@
+Package: SEjags
+Title: Bayesian spatial econometrics models with jags
+Version: 0.0.0.9000
+Authors@R: person("Virgilio", "G<U+000ED97A>-Rubio", email = "Virgilio.Gomez@uclm.es", role = c("aut", "cre"))
+Description: Implementation of several spatial econometrics models to be
+    run with jags. Models include SEM, SLM, SDM, SDEM, SLX and SAC (with lagged
+    covariates).
+Depends: spdep, rjags, parallel, R (>= 3.3.1)
+Imports: parallel
+License: GPL-3
+Encoding: ISO-8859-1
+LazyData: true
+RoxygenNote: 5.0.1
