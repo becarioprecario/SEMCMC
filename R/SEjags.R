@@ -16,9 +16,11 @@
 #' @param formula Formula with response and covariates.
 #' @param data Data.frame with the dataset.
 #' @param W An adjacency matrix, same as used in the call to SEjags().
-#' @param model. Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx' or 
-#' 'sac'.
+#' @param model. Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',  
+#' 'sac' or 'sacmixed' (SAC with lagged covariates).
 #' @return A named list with MCMC objects as returned by jags.
+#' @seealso \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
+#' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
 #' @keywords spatial models
 #' @export
 #' @examples
@@ -27,13 +29,14 @@
 #' W <- nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #'
-#' #Fit models
+#' #Fit models with SEjags
 #' sem.mcmc <- SEjags(m.form, data = d, W = W, model = "sem")
 #' slm.mcmc <- SEjags(m.form, data = d, W = W, model = "slm")
 #' sdm.mcmc <- SEjags(m.form, data = d, W = W, model = "sdm")
 #' sdem.mcmc <- SEjags(m.form, data = d, W = W, model = "sdem")
 #' slx.mcmc <- SEjags(m.form, data = d, W = W, model = "slx")
 #' sac.mcmc <- SEjags(m.form, data = d, W = W, model = "sac")
+#' sacmixed.mcmc <- SEjags(m.form, data = d, W = W, model = "sacmixed")
 #'
 #' #Compute impacts
 #' impacts(sem.mcmc, W)
@@ -42,6 +45,7 @@
 #' impacts(sdem.mcmc, W)
 #' impacts(slx.mcmc, W)
 #' impacts(sac.mcmc, W)
+#' impacts(sacmixed.mcmc, W)
 
 
 SEjags <- function(formula, data, W, model = "sem") {
