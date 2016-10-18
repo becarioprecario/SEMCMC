@@ -4,7 +4,8 @@
 \alias{SEjags}
 \title{Function to fit spatial econometrics models using MCMC with jags}
 \usage{
-SEjags(formula, data, W, model = "sem")
+SEjags(formula, data, W, model = "sem", n.burnin = 1000, n.iter = 1000,
+  n.thin)
 }
 \arguments{
 \item{formula}{Formula with response and covariates.}
@@ -13,8 +14,14 @@ SEjags(formula, data, W, model = "sem")
 
 \item{W}{An adjacency matrix, same as used in the call to SEjags().}
 
+\item{n.iter}{Number of iterarions after bun-in}
+
+\item{n.thin}{Thinning interval}
+
 \item{model.}{Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',
-'sac' or 'sacmixed' (SAC with lagged covariates).}
+'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.}
+
+\item{n.burin}{Number of burn-in iterations}
 }
 \value{
 A named list with MCMC objects as returned by jags.
@@ -29,8 +36,6 @@ d <- columbus
 W <- nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
 
-#Fit models with spdep
-
 #Fit models with SEjags
 sem.mcmc <- SEjags(m.form, data = d, W = W, model = "sem")
 slm.mcmc <- SEjags(m.form, data = d, W = W, model = "slm")
@@ -39,6 +44,7 @@ sdem.mcmc <- SEjags(m.form, data = d, W = W, model = "sdem")
 slx.mcmc <- SEjags(m.form, data = d, W = W, model = "slx")
 sac.mcmc <- SEjags(m.form, data = d, W = W, model = "sac")
 sacmixed.mcmc <- SEjags(m.form, data = d, W = W, model = "sacmixed")
+car.mcmc <- SEjags(m.form, data = d, W = W, model = "car")
 
 #Compute impacts
 impacts(sem.mcmc, W)
@@ -48,6 +54,7 @@ impacts(sdem.mcmc, W)
 impacts(slx.mcmc, W)
 impacts(sac.mcmc, W)
 impacts(sacmixed.mcmc, W)
+impacts(car.mcmc, W)
 }
 \seealso{
 \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and

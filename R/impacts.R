@@ -66,7 +66,8 @@ impacts.SEjags <- function(res, W) {
     sdem = impacts.SEjags.sdem(res, W, idx.var, var.names),
     slx = impacts.SEjags.sdem(res, W, idx.var, var.names),#Same as SDEM
     sac = impacts.SEjags.slm(res, W, idx.var, var.names),
-    sacmixed = impacts.SEjags.sdm(res, W, idx.var, var.names)
+    sacmixed = impacts.SEjags.sdm(res, W, idx.var, var.names),
+    car = impacts.SEjags.sem(res, idx.var, var.names),
   )
 
   return(impacts)

@@ -1,12 +1,3 @@
-#Function to fit spatial econometrics models using MCMC
-#
-#formula: Formula for the model to fit
-#data: data.frame with data
-#W: adjacency matrix; same rows/cols and rows in data; for the SAC model it can
-#  be a matrix or list of two matrices (for rho and lambda)
-#model: sem, slm, sdm, sdem, slx, sac, sacmixed
-#impacts: Compute impacts
-
 #' @name SEjags
 #' @rdname SEjags
 #' @title Function to fit spatial econometrics models using MCMC with jags
@@ -17,8 +8,11 @@
 #' @param data Data.frame with the dataset.
 #' @param W An adjacency matrix, same as used in the call to SEjags().
 #' @param model. Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',  
-#' 'sac' or 'sacmixed' (SAC with lagged covariates).
+#' 'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.
 #' @return A named list with MCMC objects as returned by jags.
+#' @param n.burin Number of burn-in iterations
+#' @param n.iter Number of iterarions after bun-in
+#' @param n.thin Thinning interval
 #' @seealso \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
 #' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
 #' @keywords spatial models
@@ -37,6 +31,7 @@
 #' slx.mcmc <- SEjags(m.form, data = d, W = W, model = "slx")
 #' sac.mcmc <- SEjags(m.form, data = d, W = W, model = "sac")
 #' sacmixed.mcmc <- SEjags(m.form, data = d, W = W, model = "sacmixed")
+#' car.mcmc <- SEjags(m.form, data = d, W = W, model = "car")
 #'
 #' #Compute impacts
 #' impacts(sem.mcmc, W)
@@ -46,16 +41,18 @@
 #' impacts(slx.mcmc, W)
 #' impacts(sac.mcmc, W)
 #' impacts(sacmixed.mcmc, W)
+#' impacts(car.mcmc, W)
 
 
-SEjags <- function(formula, data, W, model = "sem") {
+SEjags <- function(formula, data, W, model = "sem", n.burnin = 1000,
+  n.iter = 1000, n.thin = 1) {
 
-  if(!model %in% c("sem", "slm", "sdm", "sdem", "slx", "sac", "sacmixed")) {
+  if(!model %in% c("sem", "slm", "sdm", "sdem", "slx", "sac", "sacmixed", "car")) {
     stop("Model is not available.")
   }
 
   #Check what is in W
-  if(model %in% c("sem", "slm", "sdm", "sdem", "slx")) { 
+  if(model %in% c("sem", "slm", "sdm", "sdem", "slx", "car")) { 
     if(class(W) != "matrix") {
       stop("W must be of type matrix")
     }
@@ -66,7 +63,7 @@ SEjags <- function(formula, data, W, model = "sem") {
   }
 
   #Check dimensions of W
-  if( (model %in% c("sem", "slm", "sdm", "sdem", "slx")) |
+  if( (model %in% c("sem", "slm", "sdm", "sdem", "slx", "car")) |
     (model %in% c("sac", "sacmixed") & class(W) == "matrix") )  { 
     if(nrow(W) != ncol(W)) {
       stop("Adjacency matrix is not symmetric.")
@@ -117,13 +114,11 @@ SEjags <- function(formula, data, W, model = "sem") {
     W.eigen <- eigen(W)$values
     d.jags$lambda.min <- 1/min(W.eigen)
     d.jags$lambda.max <- 1/max(W.eigen)
-  }
-  if(model %in% c("slm", "sdm")) {
+  } else if(model %in% c("slm", "sdm")) {
     W.eigen <- eigen(W)$values
     d.jags$rho.min <- 1/min(W.eigen)
     d.jags$rho.max <- 1/max(W.eigen)
-  }
-  if(model %in% c("sac", "sacmixed")) {
+  } else if(model %in% c("sac", "sacmixed")) {
     d.jags$I <- diag(d.jags$N)
     #rho
     W.eigen.r <- eigen(d.jags$W.rho)$values
@@ -133,6 +128,10 @@ SEjags <- function(formula, data, W, model = "sem") {
     W.eigen.l <- eigen(d.jags$W.lambda)$values
     d.jags$lambda.min <- 1/min(W.eigen.l)
     d.jags$lambda.max <- 1/max(W.eigen.l)
+  } else if(model %in% "car") {
+    d.jags$lambda.min <- -1
+    d.jags$lambda.max <- 1
+    
   }
 
   #Lagged covariates
@@ -164,7 +163,7 @@ SEjags <- function(formula, data, W, model = "sem") {
   d.inits <- list(b = matrix(0, nrow = d.jags$n.var, ncol = 1), tau = 1)
 
   #Model specific inits
-  if(model %in% c("sem", "sdem")) {
+  if(model %in% c("sem", "sdem", "car")) {
      d.inits$lambda <- 0 
      variable.names <- c("b", "lambda", "tau")
      model.file <- "sem.bug"
@@ -190,10 +189,11 @@ SEjags <- function(formula, data, W, model = "sem") {
   jm1 <- jags.model(model.path, data = d.jags,
     inits = d.inits, n.chains = 1, n.adapt = 100)
 
-  update(jm1, 1000)
+  update(jm1, n.burnin)
 
   #Variables to save
-  jm1.samp <- jags.samples(jm1, variable.names, 1000)
+  jm1.samp <- jags.samples(jm1, variable.names, n.iter = n.iter,
+    n.thin = n.thin)
 
   #Add some extra info
   class(jm1.samp) <- c("SEjags", class(jm1.samp))
