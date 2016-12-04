@@ -4,8 +4,8 @@
 \alias{SEjags}
 \title{Function to fit spatial econometrics models using MCMC with jags}
 \usage{
-SEjags(formula, data, W, model = "sem", n.burnin = 1000, n.iter = 1000,
-  n.thin)
+SEjags(formula, data, W, model = "sem", link = "identity",
+  n.burnin = 1000, n.iter = 1000, n.thin = 1)
 }
 \arguments{
 \item{formula}{Formula with response and covariates.}
@@ -14,12 +14,14 @@ SEjags(formula, data, W, model = "sem", n.burnin = 1000, n.iter = 1000,
 
 \item{W}{An adjacency matrix, same as used in the call to SEjags().}
 
+\item{model}{Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',
+'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.}
+
+\item{link}{One of 'indentity', 'logit' or 'probit'.}
+
 \item{n.iter}{Number of iterarions after bun-in}
 
 \item{n.thin}{Thinning interval}
-
-\item{model.}{Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',
-'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.}
 
 \item{n.burin}{Number of burn-in iterations}
 }

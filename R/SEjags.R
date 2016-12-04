@@ -7,12 +7,13 @@
 #' @param formula Formula with response and covariates.
 #' @param data Data.frame with the dataset.
 #' @param W An adjacency matrix, same as used in the call to SEjags().
-#' @param model. Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',  
+#' @param model Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',  
 #' 'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.
-#' @return A named list with MCMC objects as returned by jags.
+#' @param link One of 'indentity', 'logit' or 'probit'.
 #' @param n.burin Number of burn-in iterations
 #' @param n.iter Number of iterarions after bun-in
 #' @param n.thin Thinning interval
+#' @return A named list with MCMC objects as returned by jags.
 #' @seealso \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
 #' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
 #' @keywords spatial models
@@ -44,11 +45,17 @@
 #' impacts(car.mcmc, W)
 
 
-SEjags <- function(formula, data, W, model = "sem", n.burnin = 1000,
-  n.iter = 1000, n.thin = 1) {
+SEjags <- function(formula, data, W, model = "sem", link = "identity",
+  n.burnin = 1000, n.iter = 1000, n.thin = 1) {
 
+  #Check model
   if(!model %in% c("sem", "slm", "sdm", "sdem", "slx", "sac", "sacmixed", "car")) {
     stop("Model is not available.")
+  }
+
+  #Check link
+  if(!link %in% c("identity", "logit", "probit")) {
+    stop("Wrong link function")
   }
 
   #Check what is in W
@@ -162,28 +169,45 @@ SEjags <- function(formula, data, W, model = "sem", n.burnin = 1000,
   #Define initial values
   d.inits <- list(b = matrix(0, nrow = d.jags$n.var, ncol = 1), tau = 1)
 
+
   #Model specific inits
   if(model %in% c("sem", "sdem", "car")) {
      d.inits$lambda <- 0 
      variable.names <- c("b", "lambda", "tau")
-     model.file <- "sem.bug"
+     model.file <- "sem"
   } else if(model %in% c("slm", "sdm")) {
      d.inits$rho <- 0 
      variable.names <- c("b", "rho", "tau")
-     model.file <- "slm.bug"
+     model.file <- "slm"
   } else if(model %in% c("slx")) {
      variable.names <- c("b", "tau")
-     model.file <- "slx.bug"
+     model.file <- "slx"
   } else if(model %in% c("sac", "sacmixed")) {
     d.inits$lambda <- 0
     d.inits$rho <- 0
     variable.names <- c("b", "lambda", "rho", "tau")
-    model.file <- "sac.bug"
+    model.file <- "sac"
   }
+
+  #Check link for model file name
+  link.mf <- switch(link,
+    identity = "",
+    probit = "_probit",
+    logit = "_logit"
+  )
+  #Complete model file
+  model.file <- paste0(model.file, link.mf, ".bug")
 
   #path to model
   model.path <- system.file (paste0("bugs_models/", model.file),
     package = "SEjags")
+
+
+  #Remove tau in models that do not require it (slm spatial probit only?)
+  if(model == "slm" & link == "probit") {
+    d.inits <- d.inits[ - which(names(d.inits) == "tau") ]
+    variable.names <- var.names[ - which(variable.names == "tau") ]
+  }
 
   #Run jags
   jm1 <- jags.model(model.path, data = d.jags,
