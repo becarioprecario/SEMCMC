@@ -214,7 +214,7 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
   #Remove tau in models that do not require it (slm spatial probit only?)
   if(model == "slm" & link == "probit") {
     d.inits <- d.inits[ - which(names(d.inits) == "tau") ]
-    variable.names <- var.names[ - which(variable.names == "tau") ]
+    variable.names <- variable.names[ - which(variable.names == "tau") ]
   }
 
   #Run jags
