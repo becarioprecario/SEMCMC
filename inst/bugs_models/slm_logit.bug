@@ -26,7 +26,7 @@ model {
     b[i,1] ~ dnorm(0, 0.001)
   }
 
-  tau <- 1
+  tau <- dgamma(0.01, 0.01)
   rho ~  dunif(rho.min, rho.max)
 
 }
