@@ -4,7 +4,7 @@ model {
   for(i in 1:N) {
     y[i] ~ dbern (p[i])
 
-    p[i] <- phi(y.latent[i])
+    logit(p[i]) <- y.latent[i]
   }
   
   y.latent[1:N] ~ dmnorm(mu[1:N,1], PREC[,])
