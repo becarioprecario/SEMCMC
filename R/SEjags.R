@@ -119,20 +119,28 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
   #Min./max. of spatial autocorrelation
   if(model %in% c("sem", "sdem")) {
     W.eigen <- eigen(W)$values
+    #Get real eigenvalues only
+    W.eigen <- as.numeric(W.eigen[Im(W.eigen) == 0])
     d.jags$lambda.min <- 1/min(W.eigen)
     d.jags$lambda.max <- 1/max(W.eigen)
   } else if(model %in% c("slm", "sdm")) {
     W.eigen <- eigen(W)$values
+    #Get real eigenvalues only
+    W.eigen <- as.numeric(W.eigen[Im(W.eigen) == 0])
     d.jags$rho.min <- 1/min(W.eigen)
     d.jags$rho.max <- 1/max(W.eigen)
   } else if(model %in% c("sac", "sacmixed")) {
     d.jags$I <- diag(d.jags$N)
     #rho
     W.eigen.r <- eigen(d.jags$W.rho)$values
+    #Get real eigenvalues only
+    W.eigen.r <- as.numeric(W.eigen.r[Im(W.eigen.r) == 0])
     d.jags$rho.min <- 1/min(W.eigen.r)
     d.jags$rho.max <- 1/max(W.eigen.r)
     #lambda
     W.eigen.l <- eigen(d.jags$W.lambda)$values
+    #Get real eigenvalues only
+    W.eigen.l <- as.numeric(W.eigen.l[Im(W.eigen.l) == 0])
     d.jags$lambda.min <- 1/min(W.eigen.l)
     d.jags$lambda.max <- 1/max(W.eigen.l)
   } else if(model %in% "car") {
