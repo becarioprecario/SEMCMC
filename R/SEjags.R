@@ -13,6 +13,8 @@
 #' @param n.burin Number of burn-in iterations
 #' @param n.iter Number of iterarions after bun-in
 #' @param n.thin Thinning interval
+#' @param linear.predictor Whether the linear predictor should be saved (default
+#' is FALSE).
 #' @return A named list with MCMC objects as returned by jags.
 #' @seealso \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
 #' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
@@ -46,7 +48,13 @@
 
 
 SEjags <- function(formula, data, W, model = "sem", link = "identity",
-  n.burnin = 1000, n.iter = 1000, n.thin = 1) {
+  n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE) {
+
+
+  #Check linear.predictor
+  if(!is.logical(linear.predictor)) {
+    stop("Value of 'linear.predictor' must be either TRUE or FALSE.")
+  }
 
   #Check model
   if(!model %in% c("sem", "slm", "sdm", "sdem", "slx", "sac", "sacmixed", "car")) {
@@ -195,6 +203,11 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
     d.inits$rho <- 0
     variable.names <- c("b", "lambda", "rho", "tau")
     model.file <- "sac"
+  }
+
+  #Save linear predictor?
+  if(linear.predictor) {
+    variable.names <- c(variable.names, "mu")
   }
 
   #Check link for model file name

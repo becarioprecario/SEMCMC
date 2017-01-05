@@ -5,7 +5,7 @@
 \title{Function to fit spatial econometrics models using MCMC with jags}
 \usage{
 SEjags(formula, data, W, model = "sem", link = "identity",
-  n.burnin = 1000, n.iter = 1000, n.thin = 1)
+  n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE)
 }
 \arguments{
 \item{formula}{Formula with response and covariates.}
@@ -22,6 +22,9 @@ SEjags(formula, data, W, model = "sem", link = "identity",
 \item{n.iter}{Number of iterarions after bun-in}
 
 \item{n.thin}{Thinning interval}
+
+\item{linear.predictor}{Whether the linear predictor should be saved (default
+is FALSE).}
 
 \item{n.burin}{Number of burn-in iterations}
 }
