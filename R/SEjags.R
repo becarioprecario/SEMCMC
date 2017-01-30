@@ -15,6 +15,9 @@
 #' @param n.thin Thinning interval
 #' @param linear.predictor Whether the linear predictor should be saved (default
 #' is FALSE).
+#' @param INLA A boolean variable to decided whether the hierarchical model
+#' is specified as with R-INLA. This is mainly for comparisson
+#' purposes.
 #' @return A named list with MCMC objects as returned by jags.
 #' @seealso \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
 #' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
@@ -48,7 +51,8 @@
 
 
 SEjags <- function(formula, data, W, model = "sem", link = "identity",
-  n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE) {
+  n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE,
+  INLA = FALSE) {
 
 
   #Check linear.predictor
@@ -97,6 +101,11 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
     if( !all.equal(dim(W[[1]]), dim(W[[2]])) | nrow(W[[1]]) != nrow(d) ) {
       stop("Data and adjancency matrix have different dimensions.")
     }
+  }
+
+  #Check INLA param
+  if(!is.logical(INLA)) {
+    stop("INLA must be a boolean variable.")
   }
 
   #Lots of checks here
@@ -216,6 +225,12 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
     probit = "_probit",
     logit = "_logit"
   )
+
+  #INLA version?
+  if(INLA) {
+    model.file <- paste0(model.file, "INLA")
+    d.jags$inf.prec <- exp(25)
+  }
   #Complete model file
   model.file <- paste0(model.file, link.mf, ".bug")
 
