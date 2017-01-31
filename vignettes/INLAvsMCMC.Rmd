@@ -236,6 +236,10 @@ Transform estimate of spatial autocorrelation provided by INLA:
 
 ## Spatial Error Model (SEM)
 
+The following plot displays the posterior marginals of all the model
+parameters. As it can be seen, the agreement between INLA and MCMC
+is quite high.
+
 ```{r fig = TRUE, echo = FALSE}
 #Display marginals
 par(mfrow = c(2,3))
@@ -259,7 +263,9 @@ lines(semmarg, col = "red")
 ### Effect of the covariates
 
 The next plots display the estimated effect of the covariates alone to see if
-there is agreement.
+there is agreement. Instead of the fitted values reported by INLA, we have
+used the fitted values computed using a linear combination on the values
+of the covariates using the fixed effects parameters as coefficients.
 
 
 ```{r fig = TRUE, echo = FALSE}
@@ -271,7 +277,13 @@ for(v in 1:9) {
 }
 ```
 
-### Estimate of the random effects
+### Estimates of the random effects
+
+We compare now the estimates of the random effects by INLA and MCMC. For
+MCMC, the values of the random effects is computed by taking the difference
+between the observed value and the fixed effects. Then, the posterior
+mean and standard deviations are computed. For INLA, we have used the values
+reported. 
 
 ```{r}
 sem.raneff.mcmc <- apply(sem.mcmc$mu, 2, function(X) {columbus$CRIME - X})
@@ -280,6 +292,11 @@ sem.raneff.mcmc <- matrix(sem.raneff.mcmc, ncol = 49, byrow = TRUE)
 sem.raneff.mean <- apply(sem.raneff.mcmc, 2, mean)
 sem.raneff.sd <- apply(sem.raneff.mcmc, 2, sd)
 ```
+
+**It seems as if the standard deviations reported by MCMC are
+smaller than the ones reported by INLA but both provide very similar estimates
+of the posterior means.**
+
 
 ```{r fig = TRUE, echo = FALSE}
 par(mfrow = c(1, 2))
@@ -290,6 +307,10 @@ plot(sem.raneff.sd, sem.inla$summary.random$idx[, "sd"], xlab = "MCMC",
   ylab = "INLA", main = "Random effects (post. s.d.)")
   abline(0, 1)
 ```
+
+**HOWEVER, the marginals seem to agree. The MCMC output seems to have 
+different estimates of the s.d. as comparted to the INLA output, BUT the
+marginals agree!!!! :O**
 
 ```{r fig = TRUE, echo = FALSE}
 # Display first 9 linear predictors
@@ -302,6 +323,56 @@ for(v in 1:9) {
 ```
 
 
+### Checking observation 1
+
+Here we develop a bit more on the differences between INLA and MCMC using
+observation 1. The next Figure shows the marginal of the random effect
+with INLA and MCMC:
+
+```{r fig = TRUE, echo = FALSE}
+plot(sem.inla$marginals.random$idx[[1]], type = "l")
+lines(density(sem.raneff.mcmc[, 1]), lty = 2)
+
+legend ("topleft", lty = 1:2, legend = c("INLA", "MCMC"))
+
+```
+
+Now, we check the posterior means and variances:
+
+```{r fig = TRUE, echo = TRUE}
+#As reported by INLA
+sem.inla$summary.random$idx[1,]
+#As computed using the posterior marginal
+inla.zmarginal(sem.inla$marginals.random$idx[[1]], FALSE)
+#Using the MCMC output
+mean(sem.raneff.mcmc[, 1])
+sd(sem.raneff.mcmc[, 1])
+quantile(sem.raneff.mcmc[, 1], c(0.025, 0.25, 0.5, 0.75, 0.975))
+```
+
+Quantiles look very similar, but the mean and variance of from the MCMC
+output look a bit larger. If we plot the MCMC output, we get:
+
+```{r fig = TRUE, echo = FALSE}
+plot(sem.raneff.mcmc[, 1], type = "l") 
+```
+There are a few samples that look larger than they should. These will not affect
+the density plots or quantiles but they have a an impact when computing
+the posterior mean and standard deviation.
+
+```{r, eval = FALSE, echo = FALSE}
+#Remove large points
+idx.x1 <- sem.raneff.mcmc[, 1] < 30
+#Lets fit a spline
+dens.x1 <- density(sem.raneff.mcmc[idx.x1, 1])
+ff.x1 <- splinefun(dens.x1$x, dens.x1$y)
+
+integrate(ff.x1, -30, 30)
+
+#Summary statistics
+inla.zmarginal(cbind(dens.x1$x, dens.x1$y))
+
+```
 
 ## Spatial Lag Model (SLM)
 
