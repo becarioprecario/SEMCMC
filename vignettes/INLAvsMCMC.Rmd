@@ -2,6 +2,10 @@
 title: "Spatial Econometrics Models with INLA and MCMC"
 author: "Virgilio Gómez-Rubio"
 output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{Spatial Econometrics Models with INLA and MCMC}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 # Introduction
@@ -268,7 +272,7 @@ used the fitted values computed using a linear combination on the values
 of the covariates using the fixed effects parameters as coefficients.
 
 
-```{r fig = TRUE, echo = FALSE}
+```{r fig = TRUE, echo = FALSE, width = 5, height = 5}
 # Display first 9 linear predictors
 par(mfrow = c(3, 3))
 for(v in 1:9) {
