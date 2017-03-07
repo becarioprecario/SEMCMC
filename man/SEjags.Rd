@@ -5,7 +5,8 @@
 \title{Function to fit spatial econometrics models using MCMC with jags}
 \usage{
 SEjags(formula, data, W, model = "sem", link = "identity",
-  n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE)
+  n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE,
+  INLA = FALSE)
 }
 \arguments{
 \item{formula}{Formula with response and covariates.}
@@ -19,6 +20,8 @@ SEjags(formula, data, W, model = "sem", link = "identity",
 
 \item{link}{One of 'indentity', 'logit' or 'probit'.}
 
+\item{n.burnin}{Number of burn-in iterations}
+
 \item{n.iter}{Number of iterarions after bun-in}
 
 \item{n.thin}{Thinning interval}
@@ -26,7 +29,9 @@ SEjags(formula, data, W, model = "sem", link = "identity",
 \item{linear.predictor}{Whether the linear predictor should be saved (default
 is FALSE).}
 
-\item{n.burin}{Number of burn-in iterations}
+\item{INLA}{A boolean variable to decide whether the hierarchical model
+is specified as with R-INLA. This is an experimental feature mainly for 
+comparisson purposes and only implemented for the SEM model.}
 }
 \value{
 A named list with MCMC objects as returned by jags.
@@ -37,19 +42,19 @@ with jags. Models included are SEM, SLM, SDM, SDEM, SLX and SAC.
 }
 \examples{
 data(columbus)
-d <- columbus
+
 W <- nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
 
 #Fit models with SEjags
-sem.mcmc <- SEjags(m.form, data = d, W = W, model = "sem")
-slm.mcmc <- SEjags(m.form, data = d, W = W, model = "slm")
-sdm.mcmc <- SEjags(m.form, data = d, W = W, model = "sdm")
-sdem.mcmc <- SEjags(m.form, data = d, W = W, model = "sdem")
-slx.mcmc <- SEjags(m.form, data = d, W = W, model = "slx")
-sac.mcmc <- SEjags(m.form, data = d, W = W, model = "sac")
-sacmixed.mcmc <- SEjags(m.form, data = d, W = W, model = "sacmixed")
-car.mcmc <- SEjags(m.form, data = d, W = W, model = "car")
+sem.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sem")
+slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
+sdm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sdm")
+sdem.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sdem")
+slx.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slx")
+sac.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sac")
+sacmixed.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sacmixed")
+car.mcmc <- SEjags(m.form, data = columbus, W = W, model = "car")
 
 #Compute impacts
 impacts(sem.mcmc, W)
@@ -67,4 +72,3 @@ impacts(car.mcmc, W)
 }
 \keyword{models}
 \keyword{spatial}
-

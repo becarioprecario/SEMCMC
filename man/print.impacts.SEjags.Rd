@@ -4,10 +4,12 @@
 \alias{print.impacts.SEjags}
 \title{Display summary of impacts from fitted with SEjags.}
 \usage{
-\method{print}{impacts.SEjags}(obj)
+\method{print}{impacts.SEjags}(x, ...)
 }
 \arguments{
-\item{obj}{A SEjags.impacts object.}
+\item{x}{A SEjags.impacts object.}
+
+\item{...}{Extra argument to compute the impacts (not used).}
 }
 \description{
 This function will print  summary of the impacts (direct, indirect and total) from
@@ -15,11 +17,11 @@ a SEjags object. Output is similar to spdep::impacts
 }
 \examples{
 data(columbus)
+
 W <- nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
-slm.mcmc <- SEjags(m.form, data = d, W = W, model = "slm")
+slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
 impacts(slm.mcmc, W)
 }
 \keyword{models}
 \keyword{spatial}
-

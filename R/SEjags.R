@@ -10,14 +10,14 @@
 #' @param model Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',  
 #' 'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.
 #' @param link One of 'indentity', 'logit' or 'probit'.
-#' @param n.burin Number of burn-in iterations
+#' @param n.burnin Number of burn-in iterations
 #' @param n.iter Number of iterarions after bun-in
 #' @param n.thin Thinning interval
 #' @param linear.predictor Whether the linear predictor should be saved (default
 #' is FALSE).
-#' @param INLA A boolean variable to decided whether the hierarchical model
-#' is specified as with R-INLA. This is mainly for comparisson
-#' purposes.
+#' @param INLA A boolean variable to decide whether the hierarchical model
+#' is specified as with R-INLA. This is an experimental feature mainly for 
+#' comparisson purposes and only implemented for the SEM model.
 #' @return A named list with MCMC objects as returned by jags.
 #' @seealso \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
 #' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
@@ -25,19 +25,19 @@
 #' @export
 #' @examples
 #' data(columbus)
-#' d <- columbus
+#' 
 #' W <- nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #'
 #' #Fit models with SEjags
-#' sem.mcmc <- SEjags(m.form, data = d, W = W, model = "sem")
-#' slm.mcmc <- SEjags(m.form, data = d, W = W, model = "slm")
-#' sdm.mcmc <- SEjags(m.form, data = d, W = W, model = "sdm")
-#' sdem.mcmc <- SEjags(m.form, data = d, W = W, model = "sdem")
-#' slx.mcmc <- SEjags(m.form, data = d, W = W, model = "slx")
-#' sac.mcmc <- SEjags(m.form, data = d, W = W, model = "sac")
-#' sacmixed.mcmc <- SEjags(m.form, data = d, W = W, model = "sacmixed")
-#' car.mcmc <- SEjags(m.form, data = d, W = W, model = "car")
+#' sem.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sem")
+#' slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
+#' sdm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sdm")
+#' sdem.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sdem")
+#' slx.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slx")
+#' sac.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sac")
+#' sacmixed.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sacmixed")
+#' car.mcmc <- SEjags(m.form, data = columbus, W = W, model = "car")
 #'
 #' #Compute impacts
 #' impacts(sem.mcmc, W)

@@ -7,10 +7,12 @@
 \usage{
 impacts(obj, ...)
 
-\method{impacts}{SEjags}(res, W)
+\method{impacts}{SEjags}(obj, ...)
 }
 \arguments{
 \item{obj}{A SEjags object.}
+
+\item{...}{Extra argument to compute the impacts.}
 
 \item{W}{An adjacency matrix, same as used in the call to SEjags().}
 }
@@ -24,16 +26,11 @@ a SEjags object.
 }
 \examples{
 data(columbus)
+
 W <- nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
-slm.mcmc <- SEjags(m.form, data = d, W = W, model = "slm")
-impacts(slm.mcmc, W)
-data(columbus)
-W <- nb2mat(col.gal.nb, style = "W")
-m.form <-  CRIME ~ INC + HOVAL
-slm.mcmc <- SEjags(m.form, data = d, W = W, model = "slm")
+slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
 impacts(slm.mcmc, W)
 }
 \keyword{models}
 \keyword{spatial}
-
