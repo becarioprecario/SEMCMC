@@ -20,3 +20,9 @@ r_packages:
 repos:
   CRAN: https://cloud.r-project.org
   INLA: https://www.math.ntnu.no/inla/R/testing
+
+r_github_packages: 
+  - jimhester/covr
+
+after_success:
+  - Rscript -e 'covr::codecov()'
