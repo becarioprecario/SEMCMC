@@ -13,3 +13,6 @@ dist: trusty
 before_install:
   - sudo apt-get install jags
 
+r_packages:
+  - rmarkdown
+  - INLA
