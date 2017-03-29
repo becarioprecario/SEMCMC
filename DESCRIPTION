@@ -1,7 +1,7 @@
 Package: SEjags
 Title: Bayesian Spatial Econometrics Models with jags
 Version: 0.1
-Date: 2016-14-02
+Date: 2016-29-03
 Authors@R: c(person("Virgilio",  "Gomez-Rubio", email = "Virgilio.Gomez@uclm.es", role = c("aut", "cre")))
 Author: Virgilio Gomez-Rubio [aut, cre]
 Maintainer: Virgilio Gomez-Rubio <Virgilio.Gomez@uclm.es>
