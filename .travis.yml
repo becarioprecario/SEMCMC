@@ -16,3 +16,7 @@ before_install:
 r_packages:
   - rmarkdown
   - INLA
+
+repos:
+  CRAN: https://cloud.r-project.org
+  INLA: https://www.math.ntnu.no/inla/R/testing
