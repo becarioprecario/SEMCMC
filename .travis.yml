@@ -1,4 +1,15 @@
 language: r
 
+r:
+  - release
+  - devel
+
+cache: packages
+
+sudo: required
+
+dist: trusty
+
 before_install:
   - sudo apt-get install jags
+
