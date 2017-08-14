@@ -15,14 +15,16 @@
 #' @param n.thin Thinning interval
 #' @param linear.predictor Whether the linear predictor should be saved (default
 #' is FALSE).
+#' @param sampler One of 'jags' (default) or 'stan'.
 #' @param INLA A boolean variable to decide whether the hierarchical model
 #' is specified as with R-INLA. This is an experimental feature mainly for 
-#' comparisson purposes and only implemented for the SEM model.
+#' comparisson purposes and only implemented for the SEM model (in jags).
 #' @return A named list with MCMC objects as returned by jags.
 #' @seealso \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
 #' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
 #' @keywords spatial models
 #' @export
+#' @importFrom rstan stan
 #' @examples
 #' data(columbus)
 #' 
@@ -30,29 +32,37 @@
 #' m.form <-  CRIME ~ INC + HOVAL
 #'
 #' #Fit models with SEjags
-#' sem.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sem")
-#' slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
-#' sdm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sdm")
-#' sdem.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sdem")
-#' slx.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slx")
-#' sac.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sac")
-#' sacmixed.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sacmixed")
-#' car.mcmc <- SEjags(m.form, data = columbus, W = W, model = "car")
+#' sem.jags <- SEjags(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
+#' sem.stan <- SEjags(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
+#' slm.jags <- SEjags(m.form, data = columbus, W = W, model = "slm", sampler = "jags")
+#' slm.stan <- SEjags(m.form, data = columbus, W = W, model = "slm", sampler = "stan")
+#' sdm.jags <- SEjags(m.form, data = columbus, W = W, model = "sdm", sampler = "jags")
+#' sdm.stan<- SEjags(m.form, data = columbus, W = W, model = "sdm", sampler = "stan")
+#' sdem.jags <- SEjags(m.form, data = columbus, W = W, model = "sdem", sampler = "jags")
+#' sdem.stan <- SEjags(m.form, data = columbus, W = W, model = "sdem", sampler = "stan")
+#' slx.jags <- SEjags(m.form, data = columbus, W = W, model = "slx",  sampler = "jags")
+#' slx.stan <- SEjags(m.form, data = columbus, W = W, model = "slx", sampler = "stan")
+#' sac.jags <- SEjags(m.form, data = columbus, W = W, model = "sac", sampler = "jags")
+#' sac.stan <- SEjags(m.form, data = columbus, W = W, model = "sac", sampler = "stan")
+#' sacmixed.jags <- SEjags(m.form, data = columbus, W = W, model = "sacmixed", sampler = "jags")
+#' sacmixed.stan <- SEjags(m.form, data = columbus, W = W, model = "sacmixed", sampler = "stan")
+#' car.jags <- SEjags(m.form, data = columbus, W = W, model = "car",  sampler = "jags")
+#' car.stan <- SEjags(m.form, data = columbus, W = W, model = "car", sampler = "stan")
 #'
 #' #Compute impacts
-#' impacts(sem.mcmc, W)
-#' impacts(slm.mcmc, W)
-#' impacts(sdm.mcmc, W)
-#' impacts(sdem.mcmc, W)
-#' impacts(slx.mcmc, W)
-#' impacts(sac.mcmc, W)
-#' impacts(sacmixed.mcmc, W)
-#' impacts(car.mcmc, W)
+#' impacts(sem.jags, W)
+#' impacts(slm.jags, W)
+#' impacts(sdm.jags, W)
+#' impacts(sdem.jags, W)
+#' impacts(slx.jags, W)
+#' impacts(sac.jags, W)
+#' impacts(sacmixed.jags, W)
+#' impacts(car.jags, W)
 
 
 SEjags <- function(formula, data, W, model = "sem", link = "identity",
   n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE,
-  INLA = FALSE) {
+  sampler = "bugs", INLA = FALSE) {
 
 
   #Check linear.predictor
@@ -103,6 +113,11 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
     }
   }
 
+  #Check sampler
+  if(!(sampler %in% c("jags", "stan"))) {
+    stop("Sampler must be either 'jags' or 'stan'")
+  }
+
   #Check INLA param
   if(!is.logical(INLA)) {
     stop("INLA must be a boolean variable.")
@@ -138,31 +153,31 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
     W.eigen <- eigen(W)$values
     #Get real eigenvalues only
     W.eigen <- as.numeric(W.eigen[Im(W.eigen) == 0])
-    d.jags$lambda.min <- 1/min(W.eigen)
-    d.jags$lambda.max <- 1/max(W.eigen)
+    d.jags$lambda_min <- 1/min(W.eigen)
+    d.jags$lambda_max <- 1/max(W.eigen)
   } else if(model %in% c("slm", "sdm")) {
     W.eigen <- eigen(W)$values
     #Get real eigenvalues only
     W.eigen <- as.numeric(W.eigen[Im(W.eigen) == 0])
-    d.jags$rho.min <- 1/min(W.eigen)
-    d.jags$rho.max <- 1/max(W.eigen)
+    d.jags$rho_min <- 1/min(W.eigen)
+    d.jags$rho_max <- 1/max(W.eigen)
   } else if(model %in% c("sac", "sacmixed")) {
     d.jags$I <- diag(d.jags$N)
     #rho
     W.eigen.r <- eigen(d.jags$W.rho)$values
     #Get real eigenvalues only
     W.eigen.r <- as.numeric(W.eigen.r[Im(W.eigen.r) == 0])
-    d.jags$rho.min <- 1/min(W.eigen.r)
-    d.jags$rho.max <- 1/max(W.eigen.r)
+    d.jags$rho_min <- 1/min(W.eigen.r)
+    d.jags$rho_max <- 1/max(W.eigen.r)
     #lambda
     W.eigen.l <- eigen(d.jags$W.lambda)$values
     #Get real eigenvalues only
     W.eigen.l <- as.numeric(W.eigen.l[Im(W.eigen.l) == 0])
-    d.jags$lambda.min <- 1/min(W.eigen.l)
-    d.jags$lambda.max <- 1/max(W.eigen.l)
+    d.jags$lambda_min <- 1/min(W.eigen.l)
+    d.jags$lambda_max <- 1/max(W.eigen.l)
   } else if(model %in% "car") {
-    d.jags$lambda.min <- -1
-    d.jags$lambda.max <- 1
+    d.jags$lambda_min <- -1
+    d.jags$lambda_max <- 1
     
   }
 
@@ -189,17 +204,17 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
   #}
 
   #More data
-  d.jags$n.var <- ncol(d.jags$X)
+  d.jags$nvar <- ncol(d.jags$X)
 
   #Define initial values
-  d.inits <- list(b = matrix(0, nrow = d.jags$n.var, ncol = 1), tau = 1)
+  d.inits <- list(b = matrix(0, nrow = d.jags$nvar, ncol = 1), tau = 1)
 
 
   #Model specific inits
   if(model %in% c("sem", "sdem", "car")) {
      d.inits$lambda <- 0 
      variable.names <- c("b", "lambda", "tau")
-     model.file <- "sem"
+     model.file <- ifelse(model == "car", "car", "sem")
   } else if(model %in% c("slm", "sdm")) {
      d.inits$rho <- 0 
      variable.names <- c("b", "rho", "tau")
@@ -232,10 +247,13 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
     d.jags$inf.prec <- exp(25)
   }
   #Complete model file
-  model.file <- paste0(model.file, link.mf, ".bug")
-
+  if(sampler == "jags") {
+    model.file <- paste0(model.file, link.mf, ".bug")
+  } else { #stan
+    model.file <- paste0(model.file, link.mf, ".stan")
+  }
   #path to model
-  model.path <- system.file (paste0("bugs_models/", model.file),
+  model.path <- system.file (paste0(sampler, "_models/", model.file),
     package = "SEjags")
 
 
@@ -245,21 +263,36 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
     variable.names <- variable.names[ - which(variable.names == "tau") ]
   }
 
-  #Run jags
-  jm1 <- jags.model(model.path, data = d.jags,
-    inits = d.inits, n.chains = 1, n.adapt = 100)
+  #Run models
 
-  update(jm1, n.burnin)
+  if(sampler == "jags") {
+    #Run jags
+    jm1 <- jags.model(model.path, data = d.jags,
+      inits = d.inits, n.chains = 1, n.adapt = 100)
 
-  #Variables to save
-  jm1.samp <- jags.samples(jm1, variable.names, n.iter = n.iter,
-    n.thin = n.thin)
+    update(jm1, n.burnin)
+
+    #Variables to save
+    jm1.samp <- jags.samples(jm1, variable.names, n.iter = n.iter,
+      n.thin = n.thin)
+
+  } else { #stan
+    warning("Add inits to stan")
+
+    jm1.samp <- stan(model.path, data = d.jags, chains = 1,
+      iter = n.iter, thin = n.thin, pars = variable.names, verbose = TRUE)
+  }
+
+
+  #Pack inside a list to have a class
+  jm1.samp <- list(results = jm1.samp)
 
   #Add some extra info
-  class(jm1.samp) <- c("SEjags", class(jm1.samp))
+  class(jm1.samp) <- c("SEjags")  #, class(jm1.samp))
   attr(jm1.samp, "formula") <- formula
   attr(jm1.samp, "model") <- model
+  attr(jm1.samp, "sampler") <- sampler
 
-  return(jm1.samp)
+    return(jm1.samp)
 }
 

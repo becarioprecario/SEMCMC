@@ -19,8 +19,9 @@
 #' slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
 #' impacts(slm.mcmc, W)
 
-impacts <- function(obj, ...)
+impacts <- function(obj, ...) {
     UseMethod("impacts", obj)
+}
 
 #' @name impacts.SEjags
 #' @rdname impacts
