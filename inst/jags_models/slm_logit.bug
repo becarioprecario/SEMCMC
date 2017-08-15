@@ -27,6 +27,6 @@ model {
   }
 
   tau ~ dgamma(0.01, 0.01)
-  rho ~  dunif(rho.min, rho.max)
+  rho ~  dunif(rho_min, rho_max)
 
 }
