@@ -280,7 +280,8 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
     warning("Add inits to stan")
 
     jm1.samp <- stan(model.path, data = d.jags, chains = 1,
-      iter = n.iter, thin = n.thin, pars = variable.names, verbose = TRUE)
+      iter = n.iter, thin = n.thin, pars = variable.names,
+      verbose = TRUE)
   }
 
 
