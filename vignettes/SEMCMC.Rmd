@@ -1,0 +1,19 @@
+---
+title: "Spatial Econometrics Models with Jags and Stan"
+author: "Virgilio Gomez-Rubio"
+output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{Spatial Econometrics Models with Jags and Stan}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+# Spatial Econometrics Models
+
+
+# Example: 
+
+
+
