@@ -32,7 +32,7 @@ transformed parameters {
 
   IrhoW = diag_matrix(rep_vector(1.0, N)) - rho * W;
   IlambdaW = diag_matrix(rep_vector(1.0, N)) - lambda * W;
-  IrlW <- IlambdaW * IrhoW;
+  IrlW = IlambdaW * IrhoW;
   PREC = tau * (IrlW' * IrlW);
 
   mu = IrhoW\ (X * b);
