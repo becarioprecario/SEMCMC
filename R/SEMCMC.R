@@ -62,7 +62,7 @@
 
 SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE,
-  sampler = "bugs", INLA = FALSE) {
+  sampler = "jags", INLA = FALSE) {
 
 
   #Check linear.predictor
