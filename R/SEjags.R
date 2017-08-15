@@ -1,12 +1,12 @@
-#' @name SEjags
-#' @rdname SEjags
+#' @name SEMCMC
+#' @rdname SEMCMC
 #' @title Function to fit spatial econometrics models using MCMC with jags
 #'
 #' @description This function will fit several spatial econometrics models
 #' with jags. Models included are SEM, SLM, SDM, SDEM, SLX and SAC.
 #' @param formula Formula with response and covariates.
 #' @param data Data.frame with the dataset.
-#' @param W An adjacency matrix, same as used in the call to SEjags().
+#' @param W An adjacency matrix, same as used in the call to SEMCMC().
 #' @param model Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',  
 #' 'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.
 #' @param link One of 'indentity', 'logit' or 'probit'.
@@ -31,23 +31,23 @@
 #' W <- nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #'
-#' #Fit models with SEjags
-#' sem.jags <- SEjags(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
-#' sem.stan <- SEjags(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
-#' slm.jags <- SEjags(m.form, data = columbus, W = W, model = "slm", sampler = "jags")
-#' slm.stan <- SEjags(m.form, data = columbus, W = W, model = "slm", sampler = "stan")
-#' sdm.jags <- SEjags(m.form, data = columbus, W = W, model = "sdm", sampler = "jags")
-#' sdm.stan<- SEjags(m.form, data = columbus, W = W, model = "sdm", sampler = "stan")
-#' sdem.jags <- SEjags(m.form, data = columbus, W = W, model = "sdem", sampler = "jags")
-#' sdem.stan <- SEjags(m.form, data = columbus, W = W, model = "sdem", sampler = "stan")
-#' slx.jags <- SEjags(m.form, data = columbus, W = W, model = "slx",  sampler = "jags")
-#' slx.stan <- SEjags(m.form, data = columbus, W = W, model = "slx", sampler = "stan")
-#' sac.jags <- SEjags(m.form, data = columbus, W = W, model = "sac", sampler = "jags")
-#' sac.stan <- SEjags(m.form, data = columbus, W = W, model = "sac", sampler = "stan")
-#' sacmixed.jags <- SEjags(m.form, data = columbus, W = W, model = "sacmixed", sampler = "jags")
-#' sacmixed.stan <- SEjags(m.form, data = columbus, W = W, model = "sacmixed", sampler = "stan")
-#' car.jags <- SEjags(m.form, data = columbus, W = W, model = "car",  sampler = "jags")
-#' car.stan <- SEjags(m.form, data = columbus, W = W, model = "car", sampler = "stan")
+#' #Fit models with SEMCMC
+#' sem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
+#' sem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
+#' slm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "jags")
+#' slm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "stan")
+#' sdm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "jags")
+#' sdm.stan<- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "stan")
+#' sdem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sdem", sampler = "jags")
+#' sdem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sdem", sampler = "stan")
+#' slx.jags <- SEMCMC(m.form, data = columbus, W = W, model = "slx",  sampler = "jags")
+#' slx.stan <- SEMCMC(m.form, data = columbus, W = W, model = "slx", sampler = "stan")
+#' sac.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sac", sampler = "jags")
+#' sac.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sac", sampler = "stan")
+#' sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "jags")
+#' sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "stan")
+#' car.jags <- SEMCMC(m.form, data = columbus, W = W, model = "car",  sampler = "jags")
+#' car.stan <- SEMCMC(m.form, data = columbus, W = W, model = "car", sampler = "stan")
 #'
 #' #Compute impacts
 #' impacts(sem.jags, W)
@@ -60,7 +60,7 @@
 #' impacts(car.jags, W)
 
 
-SEjags <- function(formula, data, W, model = "sem", link = "identity",
+SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE,
   sampler = "bugs", INLA = FALSE) {
 
@@ -254,7 +254,7 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
   }
   #path to model
   model.path <- system.file (paste0(sampler, "_models/", model.file),
-    package = "SEjags")
+    package = "SEMCMC")
 
 
   #Remove tau in models that do not require it (slm spatial probit only?)
@@ -289,7 +289,7 @@ SEjags <- function(formula, data, W, model = "sem", link = "identity",
   jm1.samp <- list(results = jm1.samp)
 
   #Add some extra info
-  class(jm1.samp) <- c("SEjags")  #, class(jm1.samp))
+  class(jm1.samp) <- c("SEMCMC")  #, class(jm1.samp))
   attr(jm1.samp, "formula") <- formula
   attr(jm1.samp, "model") <- model
   attr(jm1.samp, "sampler") <- sampler

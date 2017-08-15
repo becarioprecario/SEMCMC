@@ -1,12 +1,12 @@
 #' @name impacts
 #' @rdname impacts
-#' @title Compute impacts from a Bayesian spatial econometrics model ftited with SEjags.
+#' @title Compute impacts from a Bayesian spatial econometrics model ftited with SEMCMC.
 #'
 #' @description This function will compute the impacts (direct, indirect and total) from
-#' a SEjags object.
-#' @param obj A SEjags object.
+#' a SEMCMC object.
+#' @param obj A SEMCMC object.
 #' @param ... Extra argument to compute the impacts.
-#' @param W An adjacency matrix, same as used in the call to SEjags().
+#' @param W An adjacency matrix, same as used in the call to SEMCMC().
 #' @return A named list with MCMC objects for direct, indirect and 
 #' total impacts. 
 #' @keywords spatial models
@@ -16,14 +16,14 @@
 #'
 #' W <- nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
-#' slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
+#' slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 #' impacts(slm.mcmc, W)
 
 impacts <- function(obj, ...) {
     UseMethod("impacts", obj)
 }
 
-#' @name impacts.SEjags
+#' @name impacts.SEMCMC
 #' @rdname impacts
 #' @export 
 #' @examples
@@ -31,10 +31,10 @@ impacts <- function(obj, ...) {
 #'
 #' W <- nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
-#' slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
+#' slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 #' impacts(slm.mcmc, W)
 
-impacts.SEjags <- function(obj, ...) {
+impacts.SEMCMC <- function(obj, ...) {
   #'...' is simply the W matrix.
   #Lots of checks here
 
@@ -64,26 +64,26 @@ impacts.SEjags <- function(obj, ...) {
   #Obtain variable names
 
   impacts <- switch(attr(obj, "model"),
-    sem = impacts.SEjags.sem(obj, idx.var, var.names),
-    slm = impacts.SEjags.slm(obj, W, idx.var, var.names),
-    sdm = impacts.SEjags.sdm(obj, W, idx.var, var.names),
-    sdem = impacts.SEjags.sdem(obj, W, idx.var, var.names),
-    slx = impacts.SEjags.sdem(obj, W, idx.var, var.names),#Same as SDEM
-    sac = impacts.SEjags.slm(obj, W, idx.var, var.names),
-    sacmixed = impacts.SEjags.sdm(obj, W, idx.var, var.names),
-    car = impacts.SEjags.sem(obj, idx.var, var.names),
+    sem = impacts.SEMCMC.sem(obj, idx.var, var.names),
+    slm = impacts.SEMCMC.slm(obj, W, idx.var, var.names),
+    sdm = impacts.SEMCMC.sdm(obj, W, idx.var, var.names),
+    sdem = impacts.SEMCMC.sdem(obj, W, idx.var, var.names),
+    slx = impacts.SEMCMC.sdem(obj, W, idx.var, var.names),#Same as SDEM
+    sac = impacts.SEMCMC.slm(obj, W, idx.var, var.names),
+    sacmixed = impacts.SEMCMC.sdm(obj, W, idx.var, var.names),
+    car = impacts.SEMCMC.sem(obj, idx.var, var.names),
   )
 
   return(impacts)
 }
 
 
-#' @rdname impacts.SEjags.xxx
+#' @rdname impacts.SEMCMC.xxx
 #' @title Compute impacts for different models
 #'
 #' @description This is an internal function to compute the impacts (direct, indirect 
-#' and total)  from a SEjags object.
-#' @param obj A SEjags object.
+#' and total)  from a SEMCMC object.
+#' @param obj A SEMCMC object.
 #' @param W Adjacency matrix.
 #' @param idx.var An index to subset the covariates coeffiecients
 #' @param var.names Vector with variable names
@@ -94,10 +94,10 @@ impacts.SEjags <- function(obj, ...) {
 #' W <- nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #' #SEM model
-#' sem.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sem")
+#' sem.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sem")
 #' impacts(sem.mcmc, W)
 
-impacts.SEjags.sem <- function(obj, idx.var, var.names) {
+impacts.SEMCMC.sem <- function(obj, idx.var, var.names) {
 
   #No checks here as this is an internal function
 
@@ -113,17 +113,17 @@ impacts.SEjags.sem <- function(obj, idx.var, var.names) {
 
   impacts <- list(direct = dirimp, indirect = indimp,
     total = totimp)
-  class(impacts) <- "impacts.SEjags"
+  class(impacts) <- "impacts.SEMCMC"
 
   return(impacts)
 }
 
-#' @rdname impacts.SEjags.xxx
+#' @rdname impacts.SEMCMC.xxx
 #' @examples
 #' #SLM model
-#' slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
+#' slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 #' impacts(slm.mcmc, W)
-impacts.SEjags.slm <- function(obj, W, idx.var, var.names) {
+impacts.SEMCMC.slm <- function(obj, W, idx.var, var.names) {
 
   #No checks here as this is an internal function
 
@@ -150,17 +150,17 @@ impacts.SEjags.slm <- function(obj, W, idx.var, var.names) {
 
   impacts <- list(direct = dirimp, indirect = indimp,
     total = totimp)
-  class(impacts) <- "impacts.SEjags"
+  class(impacts) <- "impacts.SEMCMC"
 
   return(impacts)
 }
 
-#' @rdname impacts.SEjags.xxx
+#' @rdname impacts.SEMCMC.xxx
 #' @examples
-#' sdm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sdm")
+#' sdm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sdm")
 #' impacts(sdm.mcmc, W)
 
-impacts.SEjags.sdm <- function(obj, W, idx.var, var.names) {
+impacts.SEMCMC.sdm <- function(obj, W, idx.var, var.names) {
 
   #No checks here as this is an internal function
 
@@ -194,19 +194,19 @@ impacts.SEjags.sdm <- function(obj, W, idx.var, var.names) {
 
   impacts <- list(direct = dirimp, indirect = indimp,
     total = totimp)
-  class(impacts) <- "impacts.SEjags"
+  class(impacts) <- "impacts.SEMCMC"
 
   return(impacts)
 }
 
 
-#' @rdname impacts.SEjags.xxx
+#' @rdname impacts.SEMCMC.xxx
 #' @examples
 #' data(columbus)
 #' #SDEM model
-#' sdem.mcmc <- SEjags(m.form, data = columbus, W = W, model = "sdem")
+#' sdem.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sdem")
 #' impacts(sdem.mcmc, W)
-impacts.SEjags.sdem <- function(obj, W, idx.var, var.names) {
+impacts.SEMCMC.sdem <- function(obj, W, idx.var, var.names) {
 
   #No checks here as this is an internal function
 
@@ -226,7 +226,7 @@ impacts.SEjags.sdem <- function(obj, W, idx.var, var.names) {
 
   impacts <- list(direct = dirimp, indirect = indimp,
     total = totimp)
-  class(impacts) <- "impacts.SEjags"
+  class(impacts) <- "impacts.SEMCMC"
 
   return(impacts)
 }

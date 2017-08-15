@@ -2,19 +2,19 @@
 % Please edit documentation in R/impacts.R
 \name{impacts}
 \alias{impacts}
-\alias{impacts.SEjags}
-\title{Compute impacts from a Bayesian spatial econometrics model ftited with SEjags.}
+\alias{impacts.SEMCMC}
+\title{Compute impacts from a Bayesian spatial econometrics model ftited with SEMCMC.}
 \usage{
 impacts(obj, ...)
 
-\method{impacts}{SEjags}(obj, ...)
+\method{impacts}{SEMCMC}(obj, ...)
 }
 \arguments{
-\item{obj}{A SEjags object.}
+\item{obj}{A SEMCMC object.}
 
 \item{...}{Extra argument to compute the impacts.}
 
-\item{W}{An adjacency matrix, same as used in the call to SEjags().}
+\item{W}{An adjacency matrix, same as used in the call to SEMCMC().}
 }
 \value{
 A named list with MCMC objects for direct, indirect and 
@@ -22,14 +22,14 @@ total impacts.
 }
 \description{
 This function will compute the impacts (direct, indirect and total) from
-a SEjags object.
+a SEMCMC object.
 }
 \examples{
 data(columbus)
 
 W <- nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
-slm.mcmc <- SEjags(m.form, data = columbus, W = W, model = "slm")
+slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 impacts(slm.mcmc, W)
 }
 \keyword{models}
