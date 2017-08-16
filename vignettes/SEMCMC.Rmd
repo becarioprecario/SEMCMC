@@ -10,10 +10,301 @@ vignette: >
 
 # Introduction
 
+The `SEMCMC` package implements a number of spatial econometrics models (LeSage and Pace, 2009)) that can be fitted using MCMC with `rjags` or `rstan`.
+
 # Spatial Econometrics Models
 
+Spatial econometrics models are a family of spatially autocorrelated models
+where spatial autocorrelation can be on the responde, the error term or both.
+The study region is divied into $n$ non-overlapping regions and the aim is to
+model a vecotr of responses $y = (y_1,\ldots,y_n)$ using $k$ covariates. The
+matrix of covariates  $X$ is then a matrix of dimension $n \times k$. Also,
+adjacency is defined by an adjacency matrix $W$, which will row-standardised.
 
-# Example: 
+The first model that we will introduce is the *spatial error model* (SEM),
+which is an autocorrelated model on the response:
+
+$$
+y = X \beta + u;\ u = \rho W u + e;\ e \sim N(0, \sigma^2 I)
+$$
+
+Note that the error term $u$ is spatially autocorrelated with spatial
+autocorrelation parameter being $\lambda$.
+
+This model can be re-written as
+
+$$
+y = X \beta + u;\ u \sim N\left(0, \sigma^2[(I -\lambda W^{\intercal})(I-\lambda W)]^{-1}\right)
+$$
 
 
+Similarly, the *spatial lag model* (SLM) is a spatially autocorrelated model
+on the response:
+
+$$
+y = \rho W y + X \beta + e; e \sim N(0, \sigma^2 I)
+$$
+
+This model can be also written as
+
+$$
+y = (I - \rho W) ^{-1} X\beta + u; u \sim N\left(0, \sigma^2[(I -\rho W^{\intercal})(I-\rho W)]^{-1}\right)
+$$
+
+The *spatial Durbin model* (SDM) is a SLM model with lagged-covariates $WX$:
+
+$$
+y = (I - \rho W) ^{-1} (X\beta + W X \gamma)+ u; u \sim N\left(0, \sigma^2[(I -\rho W^{\intercal})(I-\rho W)]^{-1}\right)
+$$
+
+
+Finally the *general spatial model* (SAC) is a model that includes
+autocorrelated terms on the error and the reponse:
+
+$$
+y = \rho W y + X \beta + \ u = \rho W u + e;\ e \sim N(0, \sigma^2 I)
+$$
+
+The SAC model can be rewritten as 
+
+$$
+y = (I - \rho W) ^{-1} X\beta + u; u \sim N\left(0, \sigma^2[(I -\rho W^{\intercal}) (I -\lambda W^{\intercal})(I-\lambda W) (I-\rho W)]^{-1}\right)
+$$
+
+
+In addition, the SAC model can include lagged covariates, so that it becomes:
+
+$$
+y = (I - \rho W) ^{-1} (X\beta + W X \gamma) + u; u \sim N\left(0, \sigma^2[(I -\rho W^{\intercal}) (I -\lambda W^{\intercal})(I-\lambda W) (I-\rho W)]^{-1}\right)
+$$
+
+
+The SLX model is essentially a SEM model with lagged covariates:
+
+$$
+y = X\beta + W X \gamma + u;\ 
+u \sim N\left(0, \sigma^2[(I -\lambda W^{\intercal})(I-\lambda W)]^{-1}\right)
+$$
+
+
+In addition to these spatial econometrics models, `SEMCMC`also implements
+the proper CAR model on the error term:
+
+$$
+y = X\beta + u; u \sim N\left(0, \sigma^2(I-\lambda W)^{-1}\right)
+$$
+
+# Bayesian inference with the  `SEMCMC` package
+
+
+The `SEMCMC` includes an implementation of these models using Markov chain
+Monte Carlo (MCMC) methods with jags and Stan. So far, available models
+are SEM, SLM, SDM, SAC, SAC with lagged covariates and SLX for a Gaussian
+response.
+
+Models are fitted with a call to `SEMCMC()` and it allows the following:
+
+* Covariates and response variables are specified with a `formula`.
+
+* The model to fit is set using argument `model`.
+
+* The sampler (either `jags` or `stan`) can be set with argument `sampler`.
+
+* The number of iterations for burn-in and inference can also be set.
+
+* Computation of the impacts is available via the `impacts` function
+(currently, only available for jags output).
+
+Non-linear models will be implemented soon and some are already available for
+jags.
+
+The priors used for the parameters are as follows:
+
+* Covariate coefficients are assigned a Gaussian prior with zero mean and precision 0.001.
+
+* Precisions are assigned a Gamma distribution with parameters 0.01 and 0.01.
+
+* Spatial autocorrelation parameters are assigned a uniform prior between
+the inverse of the minimum and the inverse of the maximum eigenvalues of
+$W$.
+
+Other priors could be easily used by modifying the model definitions 
+(available under `SEMCMC/inst`).
+
+# Example: Columbus (OH) dataset
+
+In this example we will use the `columbus` dataset to  illustrate the use
+of the `SEMCMC` function to fit Bayesian spatial econometrics models.
+This dataset is available in the `spdep` package and it contains
+informatin about 49 neighbourhoods in Columbus, OH, in 1980.
+
+In particular, we will be using the following three variables:
+
+* `HOVAL` housing value (in \$1,000)
+
+* `INC` household income (in \$1,000)
+
+* `CRIME` residential burglaries and vehicle thefts per thousand
+          households in the neighborhood
+
+The aim is to model crime rates on housing value and crime using different models.
+
+
+First of all, data needs to be loaded and the adjacency matrix converted into
+a matrix $W$:
+
+```{r}
+library(spdep)
+data(columbus)
+     
+W <- nb2mat(col.gal.nb, style = "W")
+```
+
+Next, the response variable and covariates are set using a formula:
+
+```{r}
+m.form <-  CRIME ~ INC + HOVAL
+```
+
+This formula will be used in all the models that we fit below.
+
+
+```{r echo = FALSE, results = "hide", message = FALSE}
+library(SEMCMC)
+#Load precomputed results
+load("SEMCMC.RData")
+```
+
+In the follwoing examples, we willbe fittind models SEM, SDM and SAC with lagged
+covariates. Other models can be fitted in a similar way by setting argument
+`model` to the appropriate value. See the manual page of `SEMCMC` for some examples.
+
+## SEM model
+
+We will start with the SEM model, using both jags and stan:
+
+```{r results = "hide", eval = FALSE}
+library(SEMCMC)
+#JAGS
+sem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
+#STAN
+sem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
+```
+
+By default, the number of burn-in iterations is 1000 and the number of
+iterations for inference is 1000 with no thinning.
+
+Note how the only difference is in `sampler`. In addition, we will use 
+maximum likelihood to fit this model so that we can compare the different
+estimates:
+
+```{r}
+#Maximum likelihood
+#Adjacacy matrix as a list of weights (see 'listw')
+lw <- nb2listw(col.gal.nb, style="W")
+sem.ml <- errorsarlm(m.form, data = columbus, lw, method="eigen", 
+  quiet = TRUE)
+```
+
+
+```{r echo = FALSE}
+#Some useful functions...
+
+#stan2coda, by Ben Goodrich
+#http://jeromyanglim.tumblr.com/post/91434443911/how-to-convert-a-stan-fit-object-to-work-with-coda
+stan2coda <- function(fit) {
+     mcmc.list(lapply(1:ncol(fit), function(x) mcmc(as.array(fit)[,x,])))
+}
+
+
+#Summary output of jags output
+summary_output <- function (fit, func) {
+  unlist(lapply(fit, function (X) {
+    as.vector(summary(X, func)$stat)
+  }))
+}
+
+```
+
+The point estimates of the parameters for the SEM model are available in the
+following table:
+
+```{r echo = FALSE}
+#SEM summary output
+
+tab.sem <- data.frame(JAGS = summary_output(sem.jags$results, mean))
+tab.sem$STAN <- summary(stan2coda(sem.stan$results))$stat[1:5, 1]
+tab.sem$ML <- c(sem.ml$coefficients, sem.ml$lambda, 1/sem.ml$s2)
+
+#Update covariate names
+var.names <- names(sem.ml$coefficients)
+row.names(tab.sem)[1:length(var.names)] <- var.names 
+
+knitr::kable(tab.sem)
+```
+
+
+## SDM model
+
+```{r results = "hide", eval = FALSE}
+library(SEMCMC)
+#JAGS
+sdm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "jags")
+#STAN
+sdm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "stan")
+#ML
+sdm.ml <- lagsarlm(m.form, data = columbus, lw, type = "mixed", 
+  method = "eigen", quiet = TRUE)
+```
+
+
+For the spatial Durbin model, the point estimates are the following:
+
+```{r echo = FALSE}
+#SDM summary output
+tab.sdm <- data.frame(JAGS = summary_output(sdm.jags$results, mean))
+tab.sdm$STAN <- summary(stan2coda(sdm.stan$results))$stat[1:7, 1]
+tab.sdm$ML <- c(sdm.ml$coefficients, sdm.ml$rho, 1/sdm.ml$s2)
+
+#Update covariate names
+var.names <- names(sdm.ml$coefficients)
+row.names(tab.sdm)[1:length(var.names)] <- var.names
+
+
+knitr::kable(tab.sdm)
+```
+
+
+
+##SAC model with lagged covariates
+
+```{r results = "hide", eval = FALSE}
+#JAGS
+sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed",
+  sampler = "jags", n.burnin = 2000, n.iter = 5000, n.thin = 5)
+#STAN
+sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed",
+  sampler = "stan", n.burnin = 2000, n.iter = 5000, n.thin = 5)
+#ML
+sacmixed.ml <- sacsarlm(m.form, data = columbus, lw, type = "sacmixed", 
+  method = "eigen", quiet = TRUE)
+```
+
+
+The point estimats of the parameters in the model for the SAC model with lagged
+covariates are:
+
+```{r echo = FALSE}
+#SAC mixed summary output
+tab.sacmixed <- data.frame(JAGS = summary_output(sacmixed.jags$results, mean))
+tab.sacmixed$STAN <- summary(stan2coda(sacmixed.stan$results))$stat[1:8, 1]
+tab.sacmixed$ML <- c(sacmixed.ml$coefficients, sacmixed.ml$lambda, sacmixed.ml$rho, 1/sacmixed.ml$s2)
+
+#Update covariate names
+var.names <- names(sacmixed.ml$coefficients)
+row.names(tab.sacmixed)[1:length(var.names)] <- var.names
+
+
+knitr::kable(tab.sacmixed)
+```
 
