@@ -51,6 +51,7 @@ m.form <-  CRIME ~ INC + HOVAL
 #Fit models with SEMCMC
 sem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
 sem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
+
 \dontrun{
 slm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "jags")
 slm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "stan")
@@ -64,8 +65,12 @@ sac.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sac", sampler = "jag
 sac.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sac", sampler = "stan")
 sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "jags")
 sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "stan")
-car.jags <- SEMCMC(m.form, data = columbus, W = W, model = "car",  sampler = "jags")
-car.stan <- SEMCMC(m.form, data = columbus, W = W, model = "car", sampler = "stan")
+
+Use binary adjancecy matrix with CAR models
+W.bin <- nb2mat(col.gal.nb, style = "B")
+
+car.jags <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car",  sampler = "jags")
+car.stan <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car", sampler = "stan")
 
 #Compute impacts
 impacts(sem.jags, W)
