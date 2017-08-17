@@ -22,13 +22,14 @@
 
 \item{var.names}{Vector with variable names}
 
-\item{W}{Adjacency matrix.}
+\item{W}{An adjacency matrix, same as used in the call to SEMCMC().}
 }
 \description{
 This is an internal function to compute the impacts (direct, indirect 
 and total)  from a SEMCMC object.
 }
 \examples{
+library(spdep)
 data(columbus)
 
 W <- nb2mat(col.gal.nb, style = "W")

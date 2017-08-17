@@ -13,8 +13,6 @@ impacts(obj, ...)
 \item{obj}{A SEMCMC object.}
 
 \item{...}{Extra argument to compute the impacts.}
-
-\item{W}{An adjacency matrix, same as used in the call to SEMCMC().}
 }
 \value{
 A named list with MCMC objects for direct, indirect and 
@@ -25,6 +23,7 @@ This function will compute the impacts (direct, indirect and total) from
 a SEMCMC object.
 }
 \examples{
+library(spdep)
 data(columbus)
 
 W <- nb2mat(col.gal.nb, style = "W")

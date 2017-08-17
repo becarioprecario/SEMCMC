@@ -8,6 +8,9 @@
 #' @param ... Extra argument to compute the impacts (not used).
 #' @keywords spatial models
 #' @export
+#'
+#' @importFrom stats sd
+#'
 #' @examples
 #' data(columbus)
 #'

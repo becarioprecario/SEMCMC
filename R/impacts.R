@@ -1,4 +1,5 @@
 #' @name impacts
+#' @aliases impacts
 #' @rdname impacts
 #' @title Compute impacts from a Bayesian spatial econometrics model ftited with SEMCMC.
 #'
@@ -6,12 +7,12 @@
 #' a SEMCMC object.
 #' @param obj A SEMCMC object.
 #' @param ... Extra argument to compute the impacts.
-#' @param W An adjacency matrix, same as used in the call to SEMCMC().
 #' @return A named list with MCMC objects for direct, indirect and 
 #' total impacts. 
 #' @keywords spatial models
 #' @export
 #' @examples
+#' library(spdep)
 #' data(columbus)
 #'
 #' W <- nb2mat(col.gal.nb, style = "W")
@@ -24,9 +25,11 @@ impacts <- function(obj, ...) {
 }
 
 #' @name impacts.SEMCMC
+#' @aliases impacts.SEMCMC
 #' @rdname impacts
 #' @export 
 #' @examples
+#' library(spdep)
 #' data(columbus)
 #'
 #' W <- nb2mat(col.gal.nb, style = "W")
@@ -88,16 +91,17 @@ impacts.SEMCMC <- function(obj, ...) {
 
 
 #' @rdname impacts.SEMCMC.xxx
+#' @aliases impacts.SEMCMC.sem
 #' @title Compute impacts for different models
 #'
 #' @description This is an internal function to compute the impacts (direct, indirect 
 #' and total)  from a SEMCMC object.
 #' @param obj A SEMCMC object.
-#' @param W Adjacency matrix.
 #' @param idx.var An index to subset the covariates coeffiecients
 #' @param var.names Vector with variable names
 #' @keywords spatial models
 #' @examples
+#' library(spdep)
 #' data(columbus)
 #'
 #' W <- nb2mat(col.gal.nb, style = "W")
@@ -128,6 +132,10 @@ impacts.SEMCMC.sem <- function(obj, idx.var, var.names) {
 }
 
 #' @rdname impacts.SEMCMC.xxx
+#' @aliases impacts.SEMCMC.slm
+#'
+#' @importFrom parallel mclapply
+#'
 #' @examples
 #' #SLM model
 #' slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
@@ -165,6 +173,8 @@ impacts.SEMCMC.slm <- function(obj, W, idx.var, var.names) {
 }
 
 #' @rdname impacts.SEMCMC.xxx
+#' @param W An adjacency matrix, same as used in the call to SEMCMC().
+#' @aliases impacts.SEMCMC.sdm
 #' @examples
 #' sdm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sdm")
 #' impacts(sdm.mcmc, W)

@@ -24,8 +24,16 @@
 #' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
 #' @keywords spatial models
 #' @export
+#'
+#' @importFrom stats model.frame
+#' @importFrom stats model.matrix
+#' @importFrom stats terms
+#' @importFrom stats update
+#' @importFrom rjags jags.model
+#' @importFrom rjags coda.samples
 #' @importFrom rstan stan
 #' @examples
+#' library(spdep)
 #' data(columbus)
 #' 
 #' W <- nb2mat(col.gal.nb, style = "W")
@@ -124,7 +132,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
     if(!(class(W[[1]]) == "matrix" & class(W[[2]]) == "matrix")) {
       stop("Elements of W must be of type matrix")
     }
-    if( !all.equal(dim(W[[1]]), dim(W[[2]])) | nrow(W[[1]]) != nrow(d) ) {
+    if( !all.equal(dim(W[[1]]), dim(W[[2]])) | nrow(W[[1]]) != nrow(data) ) {
       stop("Data and adjancency matrix have different dimensions.")
     }
   }
