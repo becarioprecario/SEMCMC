@@ -35,6 +35,9 @@
 #' sem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
 #' sem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
 #'
+#'  #Compute impacts
+#' impacts(sem.jags, W)
+#' impacts(sem.stan, W)
 #' \dontrun{
 #' slm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "jags")
 #' slm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "stan")
@@ -56,14 +59,20 @@
 #' car.stan <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car", sampler = "stan")
 #'
 #' #Compute impacts
-#' impacts(sem.jags, W)
 #' impacts(slm.jags, W)
+#' impacts(slm.stan, W)
 #' impacts(sdm.jags, W)
+#' impacts(sdm.stan, W)
 #' impacts(sdem.jags, W)
+#' impacts(sdem.stan, W)
 #' impacts(slx.jags, W)
+#' impacts(slx.stan, W)
 #' impacts(sac.jags, W)
+#' impacts(sac.stan, W)
 #' impacts(sacmixed.jags, W)
+#' impacts(sacmixed.stan, W)
 #' impacts(car.jags, W)
+#' impacts(car.stan, W)
 #' }
 #'
 
