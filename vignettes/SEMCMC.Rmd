@@ -219,9 +219,7 @@ stan2coda <- function(fit) {
 
 #Summary output of jags output
 summary_output <- function (fit, func) {
-  unlist(lapply(fit, function (X) {
-    as.vector(summary(X, func)$stat)
-  }))
+  apply(SEMCMC:::jags2coda(fit)[[1]], 2, mean)
 }
 
 ```
@@ -253,6 +251,9 @@ sdm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "jag
 #STAN
 sdm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "stan")
 #ML
+```
+
+```{r}
 sdm.ml <- lagsarlm(m.form, data = columbus, lw, type = "mixed", 
   method = "eigen", quiet = TRUE)
 ```
@@ -285,6 +286,9 @@ sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed",
 #STAN
 sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed",
   sampler = "stan", n.burnin = 2000, n.iter = 5000, n.thin = 5)
+```
+
+```{r}
 #ML
 sacmixed.ml <- sacsarlm(m.form, data = columbus, lw, type = "sacmixed", 
   method = "eigen", quiet = TRUE)
@@ -306,5 +310,37 @@ row.names(tab.sacmixed)[1:length(var.names)] <- var.names
 
 
 knitr::kable(tab.sacmixed)
+```
+
+# Impacts
+
+
+Computation of the impacts is available for all implemented models via the
+`impacts()` function. This will provide point estimates (i.e., posterior
+means) and posterior standard deviations of the impacts.
+
+## SEM model
+
+```{r}
+impacts(sem.jags)
+impacts(sem.stan)
+```
+
+## SDM model
+
+
+```{r}
+impacts(sdm.jags)
+impacts(sdm.stan)
+spdep::impacts(sdm.ml, listw = lw)
+```
+
+## SAC model with lagged covariates
+
+
+```{r}
+impacts(sacmixed.jags)
+impacts(sacmixed.stan)
+spdep::impacts(sacmixed.ml, listw = lw)
 ```
 
