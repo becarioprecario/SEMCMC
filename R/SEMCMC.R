@@ -48,8 +48,12 @@
 #' sac.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sac", sampler = "stan")
 #' sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "jags")
 #' sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "stan")
-#' car.jags <- SEMCMC(m.form, data = columbus, W = W, model = "car",  sampler = "jags")
-#' car.stan <- SEMCMC(m.form, data = columbus, W = W, model = "car", sampler = "stan")
+#' 
+#' Use binary adjancecy matrix with CAR models
+#' W.bin <- nb2mat(col.gal.nb, style = "B")
+#'
+#' car.jags <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car",  sampler = "jags")
+#' car.stan <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car", sampler = "stan")
 #'
 #' #Compute impacts
 #' impacts(sem.jags, W)
