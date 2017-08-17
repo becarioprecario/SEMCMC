@@ -16,9 +16,9 @@ This function will print  summary of the impacts (direct, indirect and total) fr
 a SEMCMC object. Output is similar to spdep::impacts
 }
 \examples{
-data(columbus)
+data(columbus, package = "spdep")
 
-W <- nb2mat(col.gal.nb, style = "W")
+W <- spdep::nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
 slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 impacts(slm.mcmc, W)

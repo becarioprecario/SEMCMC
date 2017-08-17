@@ -29,23 +29,35 @@ This is an internal function to compute the impacts (direct, indirect
 and total)  from a SEMCMC object.
 }
 \examples{
-library(spdep)
-data(columbus)
+data(columbus, package = "spdep")
 
-W <- nb2mat(col.gal.nb, style = "W")
+W <- spdep::nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
 #SEM model
 sem.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sem")
 impacts(sem.mcmc, W)
+data(columbus, package = "spdep")
+
+W <- spdep::nb2mat(col.gal.nb, style = "W")
+m.form <-  CRIME ~ INC + HOVAL
 #SLM model
 slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 impacts(slm.mcmc, W)
+data(columbus, package = "spdep")
+
+W <- spdep::nb2mat(col.gal.nb, style = "W")
+m.form <-  CRIME ~ INC + HOVAL
+#SDM model
 sdm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sdm")
 impacts(sdm.mcmc, W)
-data(columbus)
+data(columbus, package = "spdep")
+
+W <- spdep::nb2mat(col.gal.nb, style = "W")
+m.form <-  CRIME ~ INC + HOVAL
 #SDEM model
 sdem.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sdem")
 impacts(sdem.mcmc, W)
+
 }
 \keyword{models}
 \keyword{spatial}

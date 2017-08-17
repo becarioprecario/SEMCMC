@@ -12,9 +12,9 @@
 #' @importFrom stats sd
 #'
 #' @examples
-#' data(columbus)
+#' data(columbus, package = "spdep")
 #'
-#' W <- nb2mat(col.gal.nb, style = "W")
+#' W <- spdep::nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #' slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 #' impacts(slm.mcmc, W)

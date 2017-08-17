@@ -23,10 +23,9 @@ This function will compute the impacts (direct, indirect and total) from
 a SEMCMC object.
 }
 \examples{
-library(spdep)
-data(columbus)
+data(columbus, package = "spdep")
 
-W <- nb2mat(col.gal.nb, style = "W")
+W <- spdep::nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
 slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 impacts(slm.mcmc, W)

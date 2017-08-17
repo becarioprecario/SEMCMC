@@ -20,8 +20,8 @@
 #' is specified as with R-INLA. This is an experimental feature mainly for 
 #' comparisson purposes and only implemented for the SEM model (in jags).
 #' @return A named list with MCMC objects as returned by jags.
-#' @seealso \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
-#' \code{\link{sacsarlm}} to fit similar models using maximum likelihood.
+#' @seealso \code{\link[spdep]{lagsarlm}}, \code{\link[spdep]{errorsarlm}} and
+#' \code{\link[spdep]{sacsarlm}} to fit similar models using maximum likelihood.
 #' @keywords spatial models
 #' @export
 #'
@@ -33,10 +33,9 @@
 #' @importFrom rjags coda.samples
 #' @importFrom rstan stan
 #' @examples
-#' library(spdep)
-#' data(columbus)
+#' data(columbus, package = "spdep")
 #' 
-#' W <- nb2mat(col.gal.nb, style = "W")
+#' W <- spdep::nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #'
 #' #Fit models with SEMCMC

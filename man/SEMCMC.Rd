@@ -43,10 +43,9 @@ This function will fit several spatial econometrics models
 with jags. Models included are SEM, SLM, SDM, SDEM, SLX and SAC.
 }
 \examples{
-library(spdep)
-data(columbus)
+data(columbus, package = "spdep")
 
-W <- nb2mat(col.gal.nb, style = "W")
+W <- spdep::nb2mat(col.gal.nb, style = "W")
 m.form <-  CRIME ~ INC + HOVAL
 
 #Fit models with SEMCMC
@@ -95,8 +94,8 @@ impacts(car.stan, W)
 
 }
 \seealso{
-\code{\link{lagsarlm}}, \code{\link{errorsarlm}} and
-\code{\link{sacsarlm}} to fit similar models using maximum likelihood.
+\code{\link[spdep]{lagsarlm}}, \code{\link[spdep]{errorsarlm}} and
+\code{\link[spdep]{sacsarlm}} to fit similar models using maximum likelihood.
 }
 \keyword{models}
 \keyword{spatial}

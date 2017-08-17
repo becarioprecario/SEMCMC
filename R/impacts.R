@@ -12,10 +12,9 @@
 #' @keywords spatial models
 #' @export
 #' @examples
-#' library(spdep)
-#' data(columbus)
+#' data(columbus, package = "spdep")
 #'
-#' W <- nb2mat(col.gal.nb, style = "W")
+#' W <- spdep::nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #' slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 #' impacts(slm.mcmc, W)
@@ -29,10 +28,9 @@ impacts <- function(obj, ...) {
 #' @rdname impacts
 #' @export 
 #' @examples
-#' library(spdep)
-#' data(columbus)
+#' data(columbus, package = "spdep")
 #'
-#' W <- nb2mat(col.gal.nb, style = "W")
+#' W <- spdep::nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #' slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 #' impacts(slm.mcmc, W)
@@ -101,10 +99,9 @@ impacts.SEMCMC <- function(obj, ...) {
 #' @param var.names Vector with variable names
 #' @keywords spatial models
 #' @examples
-#' library(spdep)
-#' data(columbus)
+#' data(columbus, package = "spdep")
 #'
-#' W <- nb2mat(col.gal.nb, style = "W")
+#' W <- spdep::nb2mat(col.gal.nb, style = "W")
 #' m.form <-  CRIME ~ INC + HOVAL
 #' #SEM model
 #' sem.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sem")
@@ -137,6 +134,10 @@ impacts.SEMCMC.sem <- function(obj, idx.var, var.names) {
 #' @importFrom parallel mclapply
 #'
 #' @examples
+#' data(columbus, package = "spdep")
+#'
+#' W <- spdep::nb2mat(col.gal.nb, style = "W")
+#' m.form <-  CRIME ~ INC + HOVAL
 #' #SLM model
 #' slm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "slm")
 #' impacts(slm.mcmc, W)
@@ -176,6 +177,11 @@ impacts.SEMCMC.slm <- function(obj, W, idx.var, var.names) {
 #' @param W An adjacency matrix, same as used in the call to SEMCMC().
 #' @aliases impacts.SEMCMC.sdm
 #' @examples
+#' data(columbus, package = "spdep")
+#'
+#' W <- spdep::nb2mat(col.gal.nb, style = "W")
+#' m.form <-  CRIME ~ INC + HOVAL
+#' #SDM model
 #' sdm.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sdm")
 #' impacts(sdm.mcmc, W)
 
@@ -221,10 +227,15 @@ impacts.SEMCMC.sdm <- function(obj, W, idx.var, var.names) {
 
 #' @rdname impacts.SEMCMC.xxx
 #' @examples
-#' data(columbus)
+#' data(columbus, package = "spdep")
+#'
+#' W <- spdep::nb2mat(col.gal.nb, style = "W")
+#' m.form <-  CRIME ~ INC + HOVAL
 #' #SDEM model
 #' sdem.mcmc <- SEMCMC(m.form, data = columbus, W = W, model = "sdem")
 #' impacts(sdem.mcmc, W)
+#'
+
 impacts.SEMCMC.sdem <- function(obj, W, idx.var, var.names) {
 
   #No checks here as this is an internal function
