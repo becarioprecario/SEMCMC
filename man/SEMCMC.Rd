@@ -51,7 +51,7 @@ m.form <-  CRIME ~ INC + HOVAL
 #Fit models with SEMCMC
 sem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
 sem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
-\dontrun {
+\dontrun{
 slm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "jags")
 slm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "stan")
 sdm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "jags")
@@ -77,6 +77,7 @@ impacts(sac.jags, W)
 impacts(sacmixed.jags, W)
 impacts(car.jags, W)
 }
+
 }
 \seealso{
 \code{\link{lagsarlm}}, \code{\link{errorsarlm}} and

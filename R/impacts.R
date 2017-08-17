@@ -41,16 +41,25 @@ impacts.SEMCMC <- function(obj, ...) {
   #Check if we have an intercept
   intercept <- attr(terms(attr(obj, "formula")), "intercept")
 
+
+  nvar <- attr(obj, "nvar")
   #Define index of variables
   n.var <- dim(obj$b)[1]
   if(intercept) {
-    idx.var <- 2:n.var
+    idx.var <- 2:nvar
   } else {
-    idx.var <- 1:n.var
+    idx.var <- 1:nvar
   }
 
   #Variable names
   var.names <- attr(terms(attr(obj, "formula")), "term.labels")
+
+  #Sampler
+  if(attr(obj, "sampler") == "jags") {
+     objres <- as.data.frame(do.call(rbind, obj$results))
+  } else {
+     objres <- as.data.frame(do.call(rbind, stan2coda(obj$results)))
+  }
 
   #Get adj. matrix for SAC model
   if(attr(obj, "model") %in% c("sac", "sacmixed") & class (W) == "list") {
@@ -64,14 +73,14 @@ impacts.SEMCMC <- function(obj, ...) {
   #Obtain variable names
 
   impacts <- switch(attr(obj, "model"),
-    sem = impacts.SEMCMC.sem(obj, idx.var, var.names),
-    slm = impacts.SEMCMC.slm(obj, W, idx.var, var.names),
-    sdm = impacts.SEMCMC.sdm(obj, W, idx.var, var.names),
-    sdem = impacts.SEMCMC.sdem(obj, W, idx.var, var.names),
-    slx = impacts.SEMCMC.sdem(obj, W, idx.var, var.names),#Same as SDEM
-    sac = impacts.SEMCMC.slm(obj, W, idx.var, var.names),
-    sacmixed = impacts.SEMCMC.sdm(obj, W, idx.var, var.names),
-    car = impacts.SEMCMC.sem(obj, idx.var, var.names),
+    sem = impacts.SEMCMC.sem(objres, idx.var, var.names),
+    slm = impacts.SEMCMC.slm(objres, W, idx.var, var.names),
+    sdm = impacts.SEMCMC.sdm(objres, W, idx.var, var.names),
+    sdem = impacts.SEMCMC.sdem(objres, W, idx.var, var.names),
+    slx = impacts.SEMCMC.sdem(objres, W, idx.var, var.names),#Same as SDEM
+    sac = impacts.SEMCMC.slm(objres, W, idx.var, var.names),
+    sacmixed = impacts.SEMCMC.sdm(objres, W, idx.var, var.names),
+    car = impacts.SEMCMC.sem(objres, idx.var, var.names),
   )
 
   return(impacts)
@@ -102,7 +111,7 @@ impacts.SEMCMC.sem <- function(obj, idx.var, var.names) {
   #No checks here as this is an internal function
 
   #Av. tot. imp: beta 
-  totimp <- t(obj$b[idx.var,1,,1])
+  totimp <- obj[,idx.var]
   colnames(totimp) <- var.names
 
   #Av. direct impact: tr((I - rho*W)^{-1} *beta/n
@@ -128,8 +137,8 @@ impacts.SEMCMC.slm <- function(obj, W, idx.var, var.names) {
   #No checks here as this is an internal function
 
   #Av. tot. imp: beta / (1 - rho)
-  rho.sim <- obj$rho[1,,]
-  totimp <- apply(obj$b[idx.var,1,,1], 1, function(X) {
+  rho.sim <- obj$rho
+  totimp <- apply(obj[, idx.var], 2, function(X) {
    X/(1-rho.sim)
   })
   colnames(totimp) <- var.names
@@ -139,7 +148,7 @@ impacts.SEMCMC.slm <- function(obj, W, idx.var, var.names) {
   tr.aux1 <-  unlist(mclapply(rho.sim, function(X) {
     aux <- mean(diag(solve(diag(nrow.W) - X * W)))
   }))
-  dirimp <- apply(obj$b[idx.var,1,,1], 1, function (X) {
+  dirimp <- apply(obj[, idx.var], 2, function (X) {
    X * tr.aux1
   })
   colnames(dirimp) <- var.names
@@ -168,9 +177,9 @@ impacts.SEMCMC.sdm <- function(obj, W, idx.var, var.names) {
   n.var <- length(idx.var)/2
 
   #Av. tot. imp: beta / (1 - rho)
-  rho.sim <- obj$rho[1,,]
+  rho.sim <- obj$rho
   totimp <- sapply(1:n.var, function(X) {
-   (obj$b[idx.var[X],1,,1] + obj$b[idx.var[X+n.var],1,,1])/(1-rho.sim)
+   (obj[, idx.var[X]] + obj[, idx.var[X + n.var]])/(1 - rho.sim)
   })
   colnames(totimp) <- var.names
 
@@ -183,8 +192,8 @@ impacts.SEMCMC.sdm <- function(obj, W, idx.var, var.names) {
     return(c(aux, auxW))
   }))
   dirimp <- sapply(1:n.var, function(X) {
-    tr.aux1[, 1] * obj$b[idx.var[X],1,,1] +
-      tr.aux1[, 2] * obj$b[idx.var[X + n.var],1,,1]
+    tr.aux1[, 1] * obj[, idx.var[X]] +
+      tr.aux1[, 2] * obj[, idx.var[X + n.var]]
   })
   colnames(dirimp) <- var.names
 
@@ -214,11 +223,11 @@ impacts.SEMCMC.sdem <- function(obj, W, idx.var, var.names) {
   n.var <- length(idx.var)/2
 
   #Av. tot. imp: beta + gamma
-  totimp <- t(obj$b[idx.var[1:n.var],1,,1] + obj$b[idx.var[n.var + 1:n.var],1,,1])
+  totimp <- obj[, idx.var[1:n.var]] + obj[, idx.var[n.var + 1:n.var]]
   colnames(totimp) <- var.names
 
   #Av. direct impact: tr((I - rho*W)^{-1} *beta/n
-  dirimp <- t(obj$b[idx.var[1:n.var],1,,1])
+  dirimp <- obj[, idx.var[1:n.var]]
   colnames(dirimp) <- var.names
 
   #Indirect impacts

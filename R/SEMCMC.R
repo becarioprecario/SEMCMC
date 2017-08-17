@@ -34,7 +34,8 @@
 #' #Fit models with SEMCMC
 #' sem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
 #' sem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
-#' \dontrun {
+#'
+#' \dontrun{
 #' slm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "jags")
 #' slm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "slm", sampler = "stan")
 #' sdm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "jags")
@@ -60,6 +61,7 @@
 #' impacts(sacmixed.jags, W)
 #' impacts(car.jags, W)
 #' }
+#'
 
 SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE,
@@ -274,15 +276,17 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
     update(jm1, n.burnin)
 
     #Variables to save
-    jm1.samp <- jags.samples(jm1, variable.names, n.iter = n.iter,
+    #jm1.samp <- jags.samples(jm1, variable.names, n.iter = n.iter,
+    #  n.thin = n.thin)
+    jm1.samp <- coda.samples(jm1, variable.names, n.iter = n.iter,
       n.thin = n.thin)
 
   } else { #stan
     warning("Add inits to stan")
 
     jm1.samp <- stan(model.path, data = d.jags, chains = 1,
-      iter = n.iter, warmup = n.burnin, thin = n.thin, pars = variable.names,
-      verbose = TRUE)
+      iter = n.iter * n.thin + n.burnin, warmup = n.burnin, thin = n.thin,
+      pars = variable.names, verbose = TRUE)
   }
 
 
@@ -292,6 +296,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   #Add some extra info
   class(jm1.samp) <- c("SEMCMC")  #, class(jm1.samp))
   attr(jm1.samp, "formula") <- formula
+  attr(jm1.samp, "nvar") <- d.jags$nvar
   attr(jm1.samp, "model") <- model
   attr(jm1.samp, "sampler") <- sampler
 
