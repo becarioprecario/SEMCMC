@@ -15,7 +15,7 @@ data {
 parameters {
   vector[nvar] b; //Coefficients
 
-  real <lower = 0> tau;  //Precision
+  //real <lower = 0> tau;  //Precision
 
   real<lower = -1, upper = 1> rho; //Spatial autocorrelation
 
@@ -30,7 +30,7 @@ transformed parameters {
   real<lower = 0, upper = 1> prob[N];
 
   IrhoW = diag_matrix(rep_vector(1.0, N)) - rho * W;
-  PREC = tau * ((IrhoW') * IrhoW);
+  PREC = ((IrhoW') * IrhoW);
 
   mu = IrhoW\ (X * b);
 
@@ -50,5 +50,5 @@ model {
 
   rho ~ uniform(rho_min, rho_max);
 
-  tau ~ gamma(0.01, 0.01);
+  //tau ~ gamma(0.01, 0.01);
 }

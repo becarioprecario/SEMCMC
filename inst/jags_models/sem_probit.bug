@@ -15,13 +15,13 @@ model {
   IlambdaW[1:N, 1:N] <- I[,] - lambda * W[,]
   
   #Build precision matrix for SAR error term
-  PREC[1:N, 1:N] <- tau * t(IlambdaW)%*%IlambdaW
+  PREC[1:N, 1:N] <-  t(IlambdaW)%*%IlambdaW
 
   for(i in 1:nvar) {
     b[i,1] ~ dnorm(0, 0.001)
   }
 
-  tau ~ dgamma(.01, .01)
+  #tau ~ dgamma(.01, .01)
   lambda ~  dunif(lambda_min, lambda_max)
 
 }

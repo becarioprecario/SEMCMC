@@ -15,7 +15,7 @@ data {
 parameters {
   vector[nvar] b; //Coefficients
 
-  real <lower = 0> tau;  //Precision
+  //real <lower = 0> tau;  //Precision
 
   real<lower = -1, upper = 1> lambda; //Spatial autocorrelation
 
@@ -29,7 +29,7 @@ transformed parameters {
   real<lower = 0, upper = 1> prob[N];
 
   IlambdaW = diag_matrix(rep_vector(1.0, N)) - lambda * W;
-  PREC = tau * ((IlambdaW') * IlambdaW);
+  PREC = ((IlambdaW') * IlambdaW);
 
 
   for(i in 1:N) {
@@ -48,6 +48,6 @@ model {
 
   lambda ~ uniform(lambda_min, lambda_max);
 
-  tau ~ gamma(0.01, 0.01);
+  //tau ~ gamma(0.01, 0.01);
 }
 

@@ -20,13 +20,12 @@ model {
   IrhoW.inv <- I + rhoW %*%(I+ (rhoW %*% (I + (rhoW %*% (I + (rhoW %*% (I + rhoW %*% (I + (rhoW %*% (I + rhoW))))))))))
   
   #Build precision matrix for SAR error term
-  PREC[1:N, 1:N] <- tau * t(IrhoW)%*%IrhoW
+  PREC[1:N, 1:N] <-  t(IrhoW)%*%IrhoW
 
   for(i in 1:nvar) {
     b[i,1] ~ dnorm(0, 0.001)
   }
 
-  tau <- 1
   rho ~  dunif(rho_min, rho_max)
 
 }

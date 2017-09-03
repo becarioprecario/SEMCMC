@@ -70,7 +70,7 @@ sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", samp
 sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "stan")
 
 Use binary adjancecy matrix with CAR models
-W.bin <- nb2mat(col.gal.nb, style = "B")
+W.bin <- spdep::nb2mat(col.gal.nb, style = "B")
 
 car.jags <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car",  sampler = "jags")
 car.stan <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car", sampler = "stan")
@@ -98,9 +98,9 @@ impacts(car.stan, W)
  data(Katrina, package = "spatialprobit")
 #Subset 100 shops
 set.seed(1)
-Katrina.red <- Katrina[sample(1:nrow(Katrina), 100), ]
- nb <- knn2nb(knearneigh(cbind(Katrina.red$lat, Katrina.red$long), k=11))
- W <- nb2mat(nb, style="W")
+Katrina.red <- Katrina[sample(1:nrow(Katrina), 50), ]
+ nb <- spdep::knn2nb(knearneigh(cbind(Katrina.red$lat, Katrina.red$long), k=11))
+ W <- spdep::nb2mat(nb, style="W")
 
 m.formlogit <- y1 ~ flood_depth + log_medinc + small_size + large_size +
   low_status_customers +  high_status_customers + owntype_sole_proprietor +
