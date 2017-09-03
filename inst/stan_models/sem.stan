@@ -32,7 +32,7 @@ model {
 
   y ~ multi_normal_prec(X * b, PREC);
 
-  b ~ normal(0, 1000);
+  b ~ normal(0, sqrt(1000));
 
   lambda ~ uniform(lambda_min, lambda_max);
 

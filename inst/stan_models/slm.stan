@@ -35,7 +35,7 @@ model {
 
   y ~ multi_normal_prec(mu, PREC);
 
-  b ~ normal(0, 1000);
+  b ~ normal(0, sqrt(1000));
 
   rho ~ uniform(rho_min, rho_max);
 
