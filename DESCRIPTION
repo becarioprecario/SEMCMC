@@ -1,15 +1,15 @@
 Package: SEMCMC
 Title: Bayesian Spatial Econometrics Models with MCMC using Jags and Stan
 Version: 0.1
-Date: 2017-08-17
+Date: 2017-09-03
 Authors@R: c(person("Virgilio",  "Gomez-Rubio", email = "Virgilio.Gomez@uclm.es", role = c("aut", "cre")))
 Author: Virgilio Gomez-Rubio [aut, cre]
 Maintainer: Virgilio Gomez-Rubio <Virgilio.Gomez@uclm.es>
 Description: Implementation of several spatial econometrics models to be
     run with jags and Stan. Models include SEM, SLM, SDM, SDEM, SLX and SAC 
-    (with lagged covariates).
+    (with lagged covariates). 
 Depends: rjags, rstan, coda, parallel, R (>= 3.3.1)
-Suggests: spdep, knitr
+Suggests: spdep, knitr, spatialprobit
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

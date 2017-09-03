@@ -186,9 +186,9 @@ We will start with the SEM model, using both jags and stan:
 ```{r results = "hide", eval = FALSE}
 library(SEMCMC)
 #JAGS
-sem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "jags")
+sem.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "jags", n.burnin = 2000, n.iter = 200, n.thin = 25)
 #STAN
-sem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "stan")
+sem.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sem", sampler = "stan", n.burnin = 2000, n.iter = 200, n.thin = 25)
 ```
 
 By default, the number of burn-in iterations is 1000 and the number of
@@ -247,9 +247,9 @@ knitr::kable(tab.sem)
 ```{r results = "hide", eval = FALSE}
 library(SEMCMC)
 #JAGS
-sdm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "jags")
+sdm.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "jags", n.burnin = 2000, n.iter = 200, n.thin = 25)
 #STAN
-sdm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "stan")
+sdm.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sdm", sampler = "stan", n.burnin = 2000, n.iter = 200, n.thin = 25)
 #ML
 ```
 
@@ -282,10 +282,10 @@ knitr::kable(tab.sdm)
 ```{r results = "hide", eval = FALSE}
 #JAGS
 sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed",
-  sampler = "jags", n.burnin = 2000, n.iter = 5000, n.thin = 5)
+  sampler = "jags", n.burnin = 2000, n.iter = 200, n.thin = 25)
 #STAN
 sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed",
-  sampler = "stan", n.burnin = 2000, n.iter = 5000, n.thin = 5)
+  sampler = "stan", n.burnin = 2000, n.iter = 200, n.thin = 25)
 ```
 
 ```{r}

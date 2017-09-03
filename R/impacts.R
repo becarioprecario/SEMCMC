@@ -39,6 +39,12 @@ impacts.SEMCMC <- function(obj, ...) {
   #'...' is simply the W matrix.
   #Lots of checks here
 
+  #So far, impacts only implemented for Gaussian responses
+  link <- attr(obj, "link")
+  if(link %in% c("probit", "logit") | link != "indentity") {
+    stop("Impacts not implemented for this type of link.")
+  }
+
   #Check if we have an intercept
   intercept <- attr(terms(attr(obj, "formula")), "intercept")
 

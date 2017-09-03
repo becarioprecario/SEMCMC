@@ -82,6 +82,30 @@
 #' impacts(car.stan, W)
 #' }
 #'
+#' #Example on logit and probit models
+#' \dontrun{
+#' #Example form the spatialprobit package using the Katrina dataset
+#'  data(Katrina, package = "spatialprobit")
+#' #Subset 100 shops
+#' set.seed(1)
+#' Katrina.red <- Katrina[sample(1:nrow(Katrina), 100), ]
+#'  nb <- knn2nb(knearneigh(cbind(Katrina.red$lat, Katrina.red$long), k=11))
+#'  W <- nb2mat(nb, style="W")
+#'
+#' m.formlogit <- y1 ~ flood_depth + log_medinc + small_size + large_size +
+#'   low_status_customers +  high_status_customers + owntype_sole_proprietor +
+#'   owntype_national_chain
+#'  #Logit model
+#'  semlogit.jags <- SEMCMC(m.formlogit, data = Katrina.red, W = W, 
+#'    model = "sem", sampler = "jags", link = "logit")
+#'  semlogit.stan <- SEMCMC(m.formlogit, data = Katrina.red, W = W,
+#'    model = "sem", sampler = "stan", link = "logit")
+#'  #Probit model
+#'  semprobit.jags <- SEMCMC(m.formlogit, data = Katrina.red, W = W,
+#'    model = "sem", sampler = "jags", link = "probit")
+#'  semprobit.stan <- SEMCMC(m.formlogit, data = Katrina.red, W = W,
+#'    model = "sem", sampler = "stan", link = "probit")
+#' }
 
 SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE,
@@ -303,6 +327,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
 
   } else { #stan
     warning("Add inits to stan")
+    #stan_model(model.path) #This should avoid recompiling the model each time it is run, but this does not seem to work...
 
     jm1.samp <- stan(model.path, data = d.jags, chains = 1,
       iter = n.iter * n.thin + n.burnin, warmup = n.burnin, thin = n.thin,
@@ -319,6 +344,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   attr(jm1.samp, "nvar") <- d.jags$nvar
   attr(jm1.samp, "model") <- model
   attr(jm1.samp, "sampler") <- sampler
+  attr(jm1.samp, "link") <- link
 
     return(jm1.samp)
 }
