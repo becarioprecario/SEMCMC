@@ -99,7 +99,7 @@ impacts(car.stan, W)
 #Subset 100 shops
 set.seed(1)
 Katrina.red <- Katrina[sample(1:nrow(Katrina), 50), ]
- nb <- spdep::knn2nb(knearneigh(cbind(Katrina.red$lat, Katrina.red$long), k=11))
+ nb <- spdep::knn2nb(spdep::knearneigh(cbind(Katrina.red$lat, Katrina.red$long), k=11))
  W <- spdep::nb2mat(nb, style="W")
 
 m.formlogit <- y1 ~ flood_depth + log_medinc + small_size + large_size +

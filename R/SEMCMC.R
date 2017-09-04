@@ -276,7 +276,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   }
 
   #Check link to add 'tau'
-  if(link != "probit") {
+  if(!link %in% c("logit", "probit")) {
     d.inits$tau <- 1
     variable.names <- c(variable.names, "tau")
   }

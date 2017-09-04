@@ -10,16 +10,16 @@ data {
 parameters {
   vector[nvar] b; //Coefficients
 
-  real <lower = 0> tau;  //Precision
+  //real <lower = 0> tau;  //Precision
 
   vector[N] ylatent;  //Latent variable (real)
 }
 
 transformed parameters {
-  real sigma;
+  //real sigma;
   real<lower = 0, upper = 1> prob[N];
 
-  sigma = sqrt(1/tau);
+  //sigma = sqrt(1/tau);
 
   for(i in 1:N) {
     prob[i] = exp(ylatent[i])/(1 + exp(ylatent[i]));
@@ -30,10 +30,10 @@ transformed parameters {
 model {
   y ~ bernoulli(prob);
 
-  ylatent ~ normal(X * b, sigma);
+  ylatent ~ normal(X * b, 1); 
 
   b ~ normal(0, sqrt(1000));
 
-  tau ~ gamma(0.01, 0.01);
+  //tau ~ gamma(0.01, 0.01);
 }
 
