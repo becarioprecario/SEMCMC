@@ -3,12 +3,12 @@
 #' @title Function to fit spatial econometrics models using MCMC with jags
 #'
 #' @description This function will fit several spatial econometrics models
-#' with jags. Models included are SEM, SLM, SDM, SDEM, SLX and SAC.
+#' with jags. Models included are SEM, SLM, SDM, SDEM, SLX, SAC and SMA.
 #' @param formula Formula with response and covariates.
 #' @param data Data.frame with the dataset.
 #' @param W An adjacency matrix, same as used in the call to SEMCMC().
 #' @param model Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',  
-#' 'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.
+#' 'sac', 'sacmixed' (SAC with lagged covariates), 'sma', 'smamixed' or 'car'.
 #' @param link One of 'indentity', 'logit' or 'probit'.
 #' @param n.burnin Number of burn-in iterations
 #' @param n.iter Number of iterarions after bun-in
@@ -59,12 +59,15 @@
 #' sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "jags")
 #' sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "stan")
 #' 
-#' Use binary adjancecy matrix with CAR models
+#' #Use binary adjancecy matrix with CAR models
 #' W.bin <- spdep::nb2mat(col.gal.nb, style = "B")
 #'
 #' car.jags <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car",  sampler = "jags")
 #' car.stan <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car", sampler = "stan")
 #'
+#' #SMA model requires 'W' (reponse term) and 'W.bin' (error term)
+#' sma.jags <- SEMCMC(m.form, data = columbus, W = list(W, W.bin), model = "sma", sampler = "jags")
+#' smamixed.jags <- SEMCMC(m.form, data = columbus, W = list(W, W.bin), model = "smamixed", sampler = "jags")
 #' #Compute impacts
 #' impacts(slm.jags, W)
 #' impacts(slm.stan, W)
@@ -75,6 +78,8 @@
 #' impacts(slx.jags, W)
 #' impacts(slx.stan, W)
 #' impacts(sac.jags, W)
+#' impacts(sma.jags, W)
+#' impacts(smamixed.jags, W)
 #' impacts(sac.stan, W)
 #' impacts(sacmixed.jags, W)
 #' impacts(sacmixed.stan, W)
@@ -118,7 +123,8 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   }
 
   #Check model
-  if(!model %in% c("sem", "slm", "sdm", "sdem", "slx", "sac", "sacmixed", "car")) {
+  if(!model %in% c("sem", "slm", "sdm", "sdem", "slx", "sac", "sacmixed", "sma",
+    "smamixed", "car")) {
     stop("Model is not available.")
   }
 
@@ -132,7 +138,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
     if(class(W) != "matrix") {
       stop("W must be of type matrix")
     }
-  } else if(model %in% c("sac", "sacmixed")) {
+  } else if(model %in% c("sac", "sacmixed", "sma", "smamixed")) {
       if(!((class(W) %in% "matrix") | (class(W) =="list" & length(W) ==2))) {
         stop("W must be of type matrix or list of length 2")
       }
@@ -140,7 +146,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
 
   #Check dimensions of W
   if( (model %in% c("sem", "slm", "sdm", "sdem", "slx", "car")) |
-    (model %in% c("sac", "sacmixed") & class(W) == "matrix") )  { 
+    (model %in% c("sac", "sacmixed", "sma", "smamixed") & class(W) == "matrix") )  { 
     if(nrow(W) != ncol(W)) {
       stop("Adjacency matrix is not symmetric.")
     }
@@ -151,7 +157,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   }
 
   #Check matrices for the SAC model
-  if(model %in% c("sac", "sacmixed") & class(W) == "list" & length(W) == 2) {
+  if(model %in% c("sac", "sacmixed", "sma", "smamixed") & class(W) == "list" & length(W) == 2) {
     if(!(class(W[[1]]) == "matrix" & class(W[[2]]) == "matrix")) {
       stop("Elements of W must be of type matrix")
     }
@@ -178,13 +184,13 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   d.jags$N <- nrow(data)
 
   #If SLX do not define spatial model
-  if(!model %in% c("slx", "sac", "sacmixed")) {
+  if(!model %in% c("slx", "sac", "sacmixed", "sma", "smamixed")) {
     d.jags$I <- diag(d.jags$N)
     d.jags$W <- W
   }
 
   #Adjacency matrices for SAC model
-  if(model %in% c("sac", "sacmixed")) {
+  if(model %in% c("sac", "sacmixed", "sma", "smamixed")) {
     if(class(W) == "matrix") {
       d.jags$W.rho <- W
       d.jags$W.lambda <- W
@@ -208,7 +214,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
     W.eigen <- as.numeric(W.eigen[Im(W.eigen) == 0])
     d.jags$rho_min <- 1/min(W.eigen)
     d.jags$rho_max <- 1/max(W.eigen)
-  } else if(model %in% c("sac", "sacmixed")) {
+  } else if(model %in% c("sac", "sacmixed", "sma", "smamixed")) {
     d.jags$I <- diag(d.jags$N)
     #rho
     W.eigen.r <- eigen(d.jags$W.rho)$values
@@ -229,7 +235,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   }
 
   #Lagged covariates
-  if(model %in% c("sdm", "sdem", "slx", "sacmixed")) {
+  if(model %in% c("sdm", "sdem", "slx", "sacmixed", "smamixed")) {
     #Check wehther there is an intercept in the model
     if(attr(terms(formula), "intercept")) {
       d.jags$X <- cbind(d.jags$X, W %*% d.jags$X[, -1])
@@ -268,11 +274,16 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   } else if(model %in% c("slx")) {
      variable.names <- c("b")
      model.file <- "slx"
-  } else if(model %in% c("sac", "sacmixed")) {
+  } else if(model %in% c("sac", "sacmixed", "sma", "smamixed")) {
     d.inits$lambda <- 0
     d.inits$rho <- 0
     variable.names <- c("b", "lambda", "rho")
-    model.file <- "sac"
+
+    if(model %in% c("sac", "sacmixed")) {
+      model.file <- "sac"
+    } else {
+      model.file <- "sma"
+    }
   }
 
   #Check link to add 'tau'

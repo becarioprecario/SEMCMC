@@ -16,7 +16,7 @@ SEMCMC(formula, data, W, model = "sem", link = "identity",
 \item{W}{An adjacency matrix, same as used in the call to SEMCMC().}
 
 \item{model}{Model to be fitted: 'sem', 'slm', 'sdm', 'sdem', 'slx',
-'sac', 'sacmixed' (SAC with lagged covariates) or 'car'.}
+'sac', 'sacmixed' (SAC with lagged covariates), 'sma', 'smamixed' or 'car'.}
 
 \item{link}{One of 'indentity', 'logit' or 'probit'.}
 
@@ -40,7 +40,7 @@ A named list with MCMC objects as returned by jags.
 }
 \description{
 This function will fit several spatial econometrics models
-with jags. Models included are SEM, SLM, SDM, SDEM, SLX and SAC.
+with jags. Models included are SEM, SLM, SDM, SDEM, SLX, SAC and SMA.
 }
 \examples{
 data(columbus, package = "spdep")
@@ -69,12 +69,15 @@ sac.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sac", sampler = "sta
 sacmixed.jags <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "jags")
 sacmixed.stan <- SEMCMC(m.form, data = columbus, W = W, model = "sacmixed", sampler = "stan")
 
-Use binary adjancecy matrix with CAR models
+#Use binary adjancecy matrix with CAR models
 W.bin <- spdep::nb2mat(col.gal.nb, style = "B")
 
 car.jags <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car",  sampler = "jags")
 car.stan <- SEMCMC(m.form, data = columbus, W = W.bin, model = "car", sampler = "stan")
 
+#SMA model requires 'W' (reponse term) and 'W.bin' (error term)
+sma.jags <- SEMCMC(m.form, data = columbus, W = list(W, W.bin), model = "sma", sampler = "jags")
+smamixed.jags <- SEMCMC(m.form, data = columbus, W = list(W, W.bin), model = "smamixed", sampler = "jags")
 #Compute impacts
 impacts(slm.jags, W)
 impacts(slm.stan, W)
@@ -85,6 +88,8 @@ impacts(sdem.stan, W)
 impacts(slx.jags, W)
 impacts(slx.stan, W)
 impacts(sac.jags, W)
+impacts(sma.jags, W)
+impacts(smamixed.jags, W)
 impacts(sac.stan, W)
 impacts(sacmixed.jags, W)
 impacts(sacmixed.stan, W)
