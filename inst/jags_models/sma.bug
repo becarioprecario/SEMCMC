@@ -1,0 +1,26 @@
+model {
+
+  #Response
+  y[1:N] ~ dmnorm(mu[1:N,1], PREC[,])
+
+  #Linear prediction term
+  mu[1:N,1] <- X[,] %*% b[,]
+
+  #I + lambda * W
+  IlambdaW[1:N, 1:N] <- I[,] + lambda * W[,]
+
+  #IlambdaW^{-1}
+  IlambdaW.inv <- inverse(IlambdaW)
+  #IlambdaW.inv <- I + (IlambdaW) %*%(-I + (IlambdaW %*% (I + (IlambdaW %*% (-I + (IlambdaW %*% (I + IlambdaW %*% (-I + (IlambdaW %*% (I + IlambdaW %*% (-I + IlambdaW)))))))))))
+
+
+  #Build precision matrix for SMA error term
+  PREC[1:N, 1:N] <- tau * (t(IlambdaW.inv)%*%IlambdaW.inv) 
+
+  for(i in 1:nvar) {
+    b[i,1] ~ dnorm(0, 0.001)
+  }
+
+  tau ~ dgamma(.01, .01)
+  lambda ~  dunif(lambda_min, lambda_max)
+}
