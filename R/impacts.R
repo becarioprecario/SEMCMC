@@ -69,7 +69,7 @@ impacts.SEMCMC <- function(obj, ...) {
   }
 
   #Get adj. matrix for SAC model
-  if(attr(obj, "model") %in% c("sac", "sacmixed", "sma", "smamixed") & class (W) == "list") {
+  if(attr(obj, "model") %in% c("sac", "sacmixed") & class (W) == "list") {
     if(length(W) == 2 & class(W[[1]]) == "matrix") {
       W <- W[[1]]
     } else {
@@ -87,8 +87,8 @@ impacts.SEMCMC <- function(obj, ...) {
     slx = impacts.SEMCMC.sdem(objres, W, idx.var, var.names),#Same as SDEM
     sac = impacts.SEMCMC.slm(objres, W, idx.var, var.names),
     sacmixed = impacts.SEMCMC.sdm(objres, W, idx.var, var.names),
-    sma = impacts.SEMCMC.slm(objres, W, idx.var, var.names),
-    smamixed = impacts.SEMCMC.sdm(objres, W, idx.var, var.names),
+    sma = impacts.SEMCMC.sem(objres, W, idx.var, var.names),
+    smamixed = impacts.SEMCMC.sdem(objres, W, idx.var, var.names),
     car = impacts.SEMCMC.sem(objres, idx.var, var.names),
   )
 

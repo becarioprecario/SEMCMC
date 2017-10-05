@@ -134,19 +134,19 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   }
 
   #Check what is in W
-  if(model %in% c("sem", "slm", "sdm", "sdem", "slx", "car")) { 
+  if(model %in% c("sem", "slm", "sdm", "sdem", "slx", "car", "sma", "smamixed")) { 
     if(class(W) != "matrix") {
       stop("W must be of type matrix")
     }
-  } else if(model %in% c("sac", "sacmixed", "sma", "smamixed")) {
+  } else if(model %in% c("sac", "sacmixed")) {
       if(!((class(W) %in% "matrix") | (class(W) =="list" & length(W) ==2))) {
         stop("W must be of type matrix or list of length 2")
       }
   }
 
   #Check dimensions of W
-  if( (model %in% c("sem", "slm", "sdm", "sdem", "slx", "car")) |
-    (model %in% c("sac", "sacmixed", "sma", "smamixed") & class(W) == "matrix") )  { 
+  if( (model %in% c("sem", "slm", "sdm", "sdem", "slx", "car", "sma", "smamixed")) |
+    (model %in% c("sac", "sacmixed") & class(W) == "matrix") )  { 
     if(nrow(W) != ncol(W)) {
       stop("Adjacency matrix is not symmetric.")
     }
@@ -157,7 +157,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   }
 
   #Check matrices for the SAC model
-  if(model %in% c("sac", "sacmixed", "sma", "smamixed") & class(W) == "list" & length(W) == 2) {
+  if(model %in% c("sac", "sacmixed") & class(W) == "list" & length(W) == 2) {
     if(!(class(W[[1]]) == "matrix" & class(W[[2]]) == "matrix")) {
       stop("Elements of W must be of type matrix")
     }
@@ -184,13 +184,13 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   d.jags$N <- nrow(data)
 
   #If SLX do not define spatial model
-  if(!model %in% c("slx", "sac", "sacmixed", "sma", "smamixed")) {
+  if(!model %in% c("slx", "sac", "sacmixed")) {
     d.jags$I <- diag(d.jags$N)
     d.jags$W <- W
   }
 
   #Adjacency matrices for SAC model
-  if(model %in% c("sac", "sacmixed", "sma", "smamixed")) {
+  if(model %in% c("sac", "sacmixed")) {
     if(class(W) == "matrix") {
       d.jags$W.rho <- W
       d.jags$W.lambda <- W
@@ -202,19 +202,24 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   
 
   #Min./max. of spatial autocorrelation
-  if(model %in% c("sem", "sdem")) {
+  if(model %in% c("sem", "sdem", "sma", "smamixed")) {
     W.eigen <- eigen(W)$values
     #Get real eigenvalues only
     W.eigen <- as.numeric(W.eigen[Im(W.eigen) == 0])
-    d.jags$lambda_min <- 1/min(W.eigen)
-    d.jags$lambda_max <- 1/max(W.eigen)
+    if(model %in% c("sem", "sdem")) { 
+      d.jags$lambda_min <- 1/min(W.eigen)
+      d.jags$lambda_max <- 1/max(W.eigen)
+    } else {
+      d.jags$lambda_min <- -1/max(W.eigen)
+      d.jags$lambda_max <- -1/min(W.eigen)
+    }
   } else if(model %in% c("slm", "sdm")) {
     W.eigen <- eigen(W)$values
     #Get real eigenvalues only
     W.eigen <- as.numeric(W.eigen[Im(W.eigen) == 0])
     d.jags$rho_min <- 1/min(W.eigen)
     d.jags$rho_max <- 1/max(W.eigen)
-  } else if(model %in% c("sac", "sacmixed", "sma", "smamixed")) {
+  } else if(model %in% c("sac", "sacmixed")) {
     d.jags$I <- diag(d.jags$N)
     #rho
     W.eigen.r <- eigen(d.jags$W.rho)$values
@@ -237,10 +242,19 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   #Lagged covariates
   if(model %in% c("sdm", "sdem", "slx", "sacmixed", "smamixed")) {
     #Check wehther there is an intercept in the model
-    if(attr(terms(formula), "intercept")) {
-      d.jags$X <- cbind(d.jags$X, W %*% d.jags$X[, -1])
-    } else {
-      d.jags$X <- cbind(d.jags$X, W %*% d.jags$X)
+
+    if(class(W) == "matrix") {
+      if(attr(terms(formula), "intercept")) {
+        d.jags$X <- cbind(d.jags$X, W %*% d.jags$X[, -1])
+      } else {
+        d.jags$X <- cbind(d.jags$X, W %*% d.jags$X)
+      }
+    } else {#W is a list
+      if(attr(terms(formula), "intercept")) {
+        d.jags$X <- cbind(d.jags$X, W[[1]] %*% d.jags$X[, -1])
+      } else {
+        d.jags$X <- cbind(d.jags$X, W[[1]] %*% d.jags$X)
+      }
     }
   }
 
@@ -263,10 +277,14 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   d.inits <- list(b = matrix(0, nrow = d.jags$nvar, ncol = 1))
 
   #Model specific inits
-  if(model %in% c("sem", "sdem", "car")) {
+  if(model %in% c("sem", "sdem", "car", "sma", "smamixed")) {
      d.inits$lambda <- 0 
      variable.names <- c("b", "lambda")
-     model.file <- ifelse(model == "car", "car", "sem")
+     if(model %in% c("sma", "smamixed")) {
+       model.file <- "sma"
+     } else {
+       model.file <- ifelse(model == "car", "car", "sem")
+     }
   } else if(model %in% c("slm", "sdm")) {
      d.inits$rho <- 0 
      variable.names <- c("b", "rho")
@@ -274,16 +292,12 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   } else if(model %in% c("slx")) {
      variable.names <- c("b")
      model.file <- "slx"
-  } else if(model %in% c("sac", "sacmixed", "sma", "smamixed")) {
+  } else if(model %in% c("sac", "sacmixed")) {
     d.inits$lambda <- 0
     d.inits$rho <- 0
     variable.names <- c("b", "lambda", "rho")
+    model.file <- "sac"
 
-    if(model %in% c("sac", "sacmixed")) {
-      model.file <- "sac"
-    } else {
-      model.file <- "sma"
-    }
   }
 
   #Check link to add 'tau'
