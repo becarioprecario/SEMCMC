@@ -10,8 +10,8 @@ model {
   IlambdaW[1:N, 1:N] <- I[,] + lambda * W[,]
 
   #IlambdaW^{-1}
-  IlambdaW.inv <- inverse(IlambdaW)
-  #IlambdaW.inv <- I + (IlambdaW) %*%(-I + (IlambdaW %*% (I + (IlambdaW %*% (-I + (IlambdaW %*% (I + IlambdaW %*% (-I + (IlambdaW %*% (I + IlambdaW %*% (-I + IlambdaW)))))))))))
+  #IlambdaW.inv <- inverse(IlambdaW)
+  IlambdaW.inv <- I + (IlambdaW) %*%(-I + (IlambdaW %*% (I + (IlambdaW %*% (-I + (IlambdaW %*% (I + IlambdaW %*% (-I + (IlambdaW %*% (I + IlambdaW %*% (-I + IlambdaW)))))))))))
 
 
   #Build precision matrix for SMA error term
