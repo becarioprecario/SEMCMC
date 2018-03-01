@@ -41,7 +41,7 @@ impacts.SEMCMC <- function(obj, ...) {
 
   #So far, impacts only implemented for Gaussian responses
   link <- attr(obj, "link")
-  if(link %in% c("probit", "logit") | link != "identity") {
+  if(link != "identity") {
     stop("Impacts not implemented for this type of link.")
   }
 
