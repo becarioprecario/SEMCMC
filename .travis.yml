@@ -11,7 +11,7 @@ cache: packages
 sudo: required
 
 os:
-  -linux 
+  - linux 
 
 before_install:
   - sudo apt-get install jags
