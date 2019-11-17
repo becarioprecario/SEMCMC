@@ -1,33 +1,4 @@
-language: r
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-r:
-  - release
-  - devel
-
+language: R
 cache: packages
-
-sudo: required
-
-dist: trusty
-
-before_install:
-  - sudo apt-get install jags
-
-r_packages:
-  - rmarkdown
-  - INLA
-
-repos:
-  CRAN: https://cloud.r-project.org
-  INLA: https://www.math.ntnu.no/inla/R/testing
-
-r_github_packages: 
-  - jimhester/covr
-
-after_success:
-  - Rscript -e 'covr::codecov()'
-
-r_build_args: --no-build-vignettes --no-manual --no-resave-data
-r_check_args: --no-build-vignettes --no-manual
-
-warnings_are_errors: false
