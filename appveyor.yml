@@ -13,6 +13,9 @@ install:
 cache:
   - C:\RLibrary
 
+platform:
+  - x64
+
 environment:
   NOT_CRAN: true
   # env vars that may need to be set, at least temporarily, from time to time
