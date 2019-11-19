@@ -14,7 +14,7 @@ os:
   - linux 
 
 before_install:
-  - sudo apt-get install jags
+  - sudo apt-get install jags libudunits2-dev
 
 r_packages:
   - rmarkdown
