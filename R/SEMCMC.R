@@ -135,18 +135,18 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
 
   #Check what is in W
   if(model %in% c("sem", "slm", "sdm", "sdem", "slx", "car", "sma", "smamixed")) { 
-    if("matrix" %in% class(W)) {
+    if(!is.matrix(W)) {
       stop("W must be of type matrix")
     }
   } else if(model %in% c("sac", "sacmixed")) {
-      if(!((class(W) %in% "matrix") | (class(W) =="list" & length(W) ==2))) {
+      if(!is.matrix(W) | (class(W) =="list" & length(W) ==2)) {
         stop("W must be of type matrix or list of length 2")
       }
   }
 
   #Check dimensions of W
   if( (model %in% c("sem", "slm", "sdm", "sdem", "slx", "car", "sma", "smamixed")) |
-    (model %in% c("sac", "sacmixed") & class(W) == "matrix") )  { 
+    (model %in% c("sac", "sacmixed") & is.matrix(W)) )  { 
     if(nrow(W) != ncol(W)) {
       stop("Adjacency matrix is not symmetric.")
     }
@@ -158,7 +158,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
 
   #Check matrices for the SAC model
   if(model %in% c("sac", "sacmixed") & class(W) == "list" & length(W) == 2) {
-    if(!(class(W[[1]]) == "matrix" & class(W[[2]]) == "matrix")) {
+    if(!(is.matrix(W[[1]]) & is.amtrix(W[[2]]))) {
       stop("Elements of W must be of type matrix")
     }
     if( !all.equal(dim(W[[1]]), dim(W[[2]])) | nrow(W[[1]]) != nrow(data) ) {
@@ -191,7 +191,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
 
   #Adjacency matrices for SAC model
   if(model %in% c("sac", "sacmixed")) {
-    if(class(W) == "matrix") {
+    if(is.matrix(W)) {
       d.jags$W.rho <- W
       d.jags$W.lambda <- W
     } else {
@@ -243,7 +243,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
   if(model %in% c("sdm", "sdem", "slx", "sacmixed", "smamixed")) {
     #Check wehther there is an intercept in the model
 
-    if(class(W) == "matrix") {
+    if(is.matrix(W)) {
       if(attr(terms(formula), "intercept")) {
         d.jags$X <- cbind(d.jags$X, W %*% d.jags$X[, -1])
       } else {
