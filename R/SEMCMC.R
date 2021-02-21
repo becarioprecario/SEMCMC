@@ -135,7 +135,7 @@ SEMCMC <- function(formula, data, W, model = "sem", link = "identity",
 
   #Check what is in W
   if(model %in% c("sem", "slm", "sdm", "sdem", "slx", "car", "sma", "smamixed")) { 
-    if(class(W) != "matrix") {
+    if("matrix" %in% class(W)) {
       stop("W must be of type matrix")
     }
   } else if(model %in% c("sac", "sacmixed")) {

@@ -4,9 +4,19 @@
 \alias{SEMCMC}
 \title{Function to fit spatial econometrics models using MCMC with jags}
 \usage{
-SEMCMC(formula, data, W, model = "sem", link = "identity",
-  n.burnin = 1000, n.iter = 1000, n.thin = 1, linear.predictor = FALSE,
-  sampler = "jags", INLA = FALSE)
+SEMCMC(
+  formula,
+  data,
+  W,
+  model = "sem",
+  link = "identity",
+  n.burnin = 1000,
+  n.iter = 1000,
+  n.thin = 1,
+  linear.predictor = FALSE,
+  sampler = "jags",
+  INLA = FALSE
+)
 }
 \arguments{
 \item{formula}{Formula with response and covariates.}
